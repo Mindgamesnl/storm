@@ -10,12 +10,12 @@ import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 
-public class ModelField {
+public class ModelField<T> {
 
     @Getter private Class type;
     @Getter private String javaFieldName;
     @Getter private String columnName;
-    @Getter private StormTypeAdapter<?> adapter;
+    @Getter private StormTypeAdapter<T> adapter;
     @Getter private Class<? extends StormModel> model;
     @Getter private int max;
     @Getter private KeyType keyType;
@@ -25,9 +25,9 @@ public class ModelField {
     @Getter private String defaultValue;
     private Field reflectedField;
 
-    public ModelField(Class<? extends StormModel> modelClass, Field field) {
+    public ModelField(Class<? extends StormModel> modelClass, Class<T> type, Field field) {
         this.model = modelClass;
-        this.type = field.getType();
+        this.type = type;
         this.javaFieldName = field.getName();
         this.columnName = Reflection.getAnnotatedFieldName(field);
         this.adapter = TypeRegistry.getAdapterFor(this.type);
@@ -43,7 +43,9 @@ public class ModelField {
     @SneakyThrows
     public Object valueOn(StormModel model) {
         this.reflectedField.setAccessible(true);
-        return this.reflectedField.get(model);
+        return this.adapter.toSql(
+                (T) this.reflectedField.get(model)
+        );
     }
 
     public String buildSqlType() {

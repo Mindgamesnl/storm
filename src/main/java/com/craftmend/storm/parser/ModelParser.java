@@ -23,7 +23,7 @@ public class ModelParser {
         List<ModelField> tempFields = new ArrayList<>();
         for (Field declaredField : Reflection.getAllFields(new ArrayList<>(), modelClazz)) {
             if (declaredField.isAnnotationPresent(Column.class)) {
-                tempFields.add(new ModelField(modelClazz, declaredField));
+                tempFields.add(new ModelField(modelClazz, declaredField.getType(), declaredField));
             }
         }
         parsedFields = new ModelField[tempFields.size()];
