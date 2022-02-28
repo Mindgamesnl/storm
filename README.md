@@ -1,4 +1,6 @@
-# storm
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/10709682/156048080-34987a54-d433-4931-acc9-0fc416b94f8b.png" />
+</p>
 Storm is a super simple to use, no bullshit MySql(ite) ORM with a query builder, support for type conversion, schema management and connection handling.
 
 # Performance
