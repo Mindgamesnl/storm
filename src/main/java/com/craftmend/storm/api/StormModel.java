@@ -15,7 +15,6 @@ public abstract class StormModel {
     @Getter
     @Setter
     @Column(
-            unique = true,
             autoIncrement = true,
             keyType = KeyType.PRIMARY
     )

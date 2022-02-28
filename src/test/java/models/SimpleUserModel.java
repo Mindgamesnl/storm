@@ -13,7 +13,10 @@ public class SimpleUserModel extends StormModel {
     @Column
     private Integer score;
 
-    @Column(name = "email")
+    @Column(
+            name = "email",
+            defaultValue = "default@craftmend.com"
+    )
     private String emailAddress;
 
 }

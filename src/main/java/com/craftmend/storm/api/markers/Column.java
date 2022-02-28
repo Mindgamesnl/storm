@@ -14,6 +14,7 @@ public @interface Column {
     String name() default "";
     int length() default 255;
     KeyType keyType() default KeyType.NONE;
+    String defaultValue() default "";
     boolean autoIncrement() default false;
     boolean unique() default false;
     boolean notNull() default false;

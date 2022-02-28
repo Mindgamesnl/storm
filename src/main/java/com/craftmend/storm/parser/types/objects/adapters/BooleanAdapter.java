@@ -18,4 +18,9 @@ public class BooleanAdapter extends StormTypeAdapter<Boolean> {
     public String getSqlBaseType() {
         return "BOOLEAN";
     }
+
+    @Override
+    public boolean escapeAsString() {
+        return false;
+    }
 }

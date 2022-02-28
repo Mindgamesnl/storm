@@ -23,8 +23,8 @@ public class StatementBuilder {
         // parse constraints
         for (ModelField parsedField : model.parsed().getParsedFields()) {
             if (parsedField.getKeyType() == KeyType.PRIMARY) {
-                sb.append(",");
-                sb.append("PRIMARY KEY (" + parsedField.getColumnName() +")");
+                //sb.append(",");
+                //sb.append("PRIMARY KEY (" + parsedField.getColumnName() +")");
             }
         }
 

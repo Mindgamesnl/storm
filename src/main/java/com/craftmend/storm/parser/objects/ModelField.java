@@ -21,6 +21,7 @@ public class ModelField {
     @Getter private boolean unique;
     @Getter private boolean autoIncrement;
     @Getter private boolean notNull;
+    @Getter private String defaultValue;
 
     public ModelField(Class<? extends StormModel> modelClass, Field field) {
         this.model = modelClass;
@@ -33,6 +34,7 @@ public class ModelField {
         this.unique = Reflection.getAnnotatedUnique(field);
         this.autoIncrement = Reflection.getAnnotatedAutoIncrement(field);
         this.notNull = Reflection.getAnnotatedNotNull(field);
+        this.defaultValue = Reflection.getAnnotatedDefaultValue(field);
     }
 
     public String buildSqlType() {
@@ -40,9 +42,13 @@ public class ModelField {
         String sqlTypeDeclaration = this.adapter.getSqlBaseType();
         sqlTypeDeclaration = sqlTypeDeclaration.replace("%max", this.max + "");
         return this.columnName + " " + sqlTypeDeclaration +
+                (this.keyType == KeyType.PRIMARY ? " PRIMARY KEY" : "") +
+                (this.autoIncrement ? " AUTOINCREMENT" : "") +
+                (this.defaultValue != null ? " DEFAULT(" +
+                        (adapter.escapeAsString() ? "'" + this.defaultValue + "'" : this.defaultValue)
+                        + ")" : "") +
                 (this.notNull ? " NOT NULL" : "") +
-                (this.unique ? " UNIQUE" : "") +
-                (this.autoIncrement ? " AUTO_INCREMENT" : "");
+                (this.unique ? " UNIQUE" : "");
     }
 
 }

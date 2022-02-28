@@ -21,12 +21,29 @@ public class Storm {
     private Map<Class<? extends StormModel>, ModelParser> registeredModels = new HashMap<>();
     private StormDriver driver;
 
+    /**
+     * Initialize a new STORM instance with a given database driver
+     * @param driver Database driver
+     */
     public Storm(StormDriver driver) {
         System.setProperty("java.util.logging.SimpleFormatter.format",
                 "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s %2$s %5$s%6$s%n");
         this.driver = driver;
     }
 
+    /**
+     * Storm must register/migrate models before they can be used internally.
+     * It registers the parsed class definition locally, but also plays a vital role in schema management.
+     *
+     * It checks the remote if a table exists with the annotated name, and creates it if it doesn't (along with the
+     *          field schema for all annotated columns)
+     *
+     * It also checks the local schema class against the database, and alters the database table to add/remove
+     * values based on dynamic code changes.
+     *
+     * @param model Model to register
+     * @throws SQLException Something went boom
+     */
     public void migrate(StormModel model) throws SQLException {
         if (registeredModels.containsKey(model.getClass())) return;
         ModelParser parsed = new ModelParser(model.getClass());
@@ -89,6 +106,15 @@ public class Storm {
         }
 
         registeredModels.put(model.getClass(), parsed);
+    }
+
+    /**
+     * Save the model in the database.
+     * This either inserts it as a new row, or updates an existing row if there already is a row with this ID
+     * @param model Target to save
+     */
+    public void save(StormModel model) throws SQLException {
+
     }
 
 }

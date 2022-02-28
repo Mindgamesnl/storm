@@ -19,5 +19,10 @@ public class IntegerAdapter extends StormTypeAdapter<Integer> {
         return "INTEGER";
     }
 
+    @Override
+    public boolean escapeAsString() {
+        return false;
+    }
+
 
 }

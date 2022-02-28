@@ -17,4 +17,9 @@ public class StringAdapter extends StormTypeAdapter<String> {
     public String getSqlBaseType() {
         return "VARCHAR(%max)";
     }
+
+    @Override
+    public boolean escapeAsString() {
+        return true;
+    }
 }

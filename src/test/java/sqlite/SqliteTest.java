@@ -15,7 +15,7 @@ public class SqliteTest {
     public void testSqlite() {
         File dataFile = new File("test-data/database.db");
         dataFile.mkdirs();
-        // if (dataFile.exists()) dataFile.delete();
+        if (dataFile.exists()) dataFile.delete();
 
         Storm storm = new Storm(new SqliteDriver(dataFile));
         storm.migrate(new SimpleUserModel());

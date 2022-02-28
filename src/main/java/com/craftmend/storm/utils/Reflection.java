@@ -43,6 +43,15 @@ public class Reflection {
         return false;
     }
 
+    public static String getAnnotatedDefaultValue(Field field) {
+        if (field.isAnnotationPresent(Column.class)) {
+            String d = field.getAnnotation(Column.class).defaultValue();
+            if (d.equals("")) return null;
+            return d;
+        }
+        return null;
+    }
+
     public static boolean getAnnotatedNotNull(Field field) {
         if (field.isAnnotationPresent(Column.class)) {
             return field.getAnnotation(Column.class).notNull();
