@@ -12,7 +12,7 @@ import lombok.Setter;
  */
 public abstract class StormModel {
 
-    private ModelParser parsedSelf;
+    private ModelParser<? extends StormModel> parsedSelf;
     private StatementBuilder statementBuilder;
 
     @Getter
@@ -23,7 +23,7 @@ public abstract class StormModel {
     )
     private Integer id;
 
-    public ModelParser parsed() {
+    public ModelParser<? extends StormModel> parsed() {
         if (parsedSelf != null) return parsedSelf;
         parsedSelf = new ModelParser(getClass());
         return parsedSelf;

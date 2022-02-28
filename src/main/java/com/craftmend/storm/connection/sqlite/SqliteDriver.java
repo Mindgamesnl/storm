@@ -4,6 +4,7 @@ import com.craftmend.storm.connection.StormDriver;
 
 import java.io.File;
 import java.sql.*;
+import java.util.function.Consumer;
 
 public class SqliteDriver implements StormDriver {
 
@@ -15,12 +16,12 @@ public class SqliteDriver implements StormDriver {
     }
 
     @Override
-    public ResultSet executeQuery(String query, Object... arguments) throws SQLException {
+    public void executeQuery(String query, Callback callback, Object... arguments) throws Exception {
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             for (int i = 0; i < arguments.length; i++) {
                 ps.setObject(i + 1, arguments[i]);
             }
-            return ps.executeQuery();
+            callback.onAccept(ps.executeQuery());
         }
     }
 

@@ -5,20 +5,16 @@ import com.craftmend.storm.connection.StormDriver;
 import com.craftmend.storm.parser.ModelParser;
 import com.craftmend.storm.parser.objects.ModelField;
 
-import java.io.IOException;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public class Storm {
 
     private Logger logger = Logger.getLogger(getClass().getSimpleName());
-    private Map<Class<? extends StormModel>, ModelParser> registeredModels = new HashMap<>();
+    private Map<Class<? extends StormModel>, ModelParser<? extends StormModel>> registeredModels = new HashMap<>();
     private StormDriver driver;
 
     /**
@@ -106,6 +102,22 @@ public class Storm {
         }
 
         registeredModels.put(model.getClass(), parsed);
+    }
+
+    public <T extends StormModel> CompletableFuture<Collection<T>> findAll(Class<T> model) throws Exception {
+        CompletableFuture<Collection<T>> future = new CompletableFuture<>();
+        HashSet<T> results = new HashSet<>();
+        ModelParser<T> parser = (ModelParser<T>) registeredModels.get(model);
+        if (parser == null) throw new IllegalArgumentException("The model " + model.getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
+
+        driver.executeQuery("select * from " + parser.getTableName(), rows -> {
+            while (rows.next()) {
+                results.add(parser.fromResultSet(rows));
+            }
+            future.complete(results);
+        });
+
+        return future;
     }
 
     /**

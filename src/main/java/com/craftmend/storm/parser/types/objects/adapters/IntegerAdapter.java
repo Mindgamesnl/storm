@@ -5,7 +5,7 @@ import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 public class IntegerAdapter extends StormTypeAdapter<Integer> {
 
     @Override
-    public Integer fromString(Object sqlValue) {
+    public Integer fromSql(Object sqlValue) {
         return Integer.valueOf(sqlValue.toString());
     }
 

@@ -23,7 +23,7 @@ public class ModelField<T> {
     @Getter private boolean autoIncrement;
     @Getter private boolean notNull;
     @Getter private String defaultValue;
-    private Field reflectedField;
+    @Getter private Field reflectedField;
 
     public ModelField(Class<? extends StormModel> modelClass, Class<T> type, Field field) {
         this.model = modelClass;

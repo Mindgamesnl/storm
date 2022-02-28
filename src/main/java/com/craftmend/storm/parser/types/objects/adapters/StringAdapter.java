@@ -4,7 +4,7 @@ import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 
 public class StringAdapter extends StormTypeAdapter<String> {
     @Override
-    public String fromString(Object sqlValue) {
+    public String fromSql(Object sqlValue) {
         return sqlValue.toString();
     }
 

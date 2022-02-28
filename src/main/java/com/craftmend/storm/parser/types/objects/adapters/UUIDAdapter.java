@@ -7,7 +7,8 @@ import java.util.UUID;
 public class UUIDAdapter extends StormTypeAdapter<UUID> {
 
     @Override
-    public UUID fromString(Object sqlValue) {
+    public UUID fromSql(Object sqlValue) {
+        if (sqlValue == null) return null;
         return UUID.fromString(sqlValue.toString());
     }
 

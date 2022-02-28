@@ -1,17 +1,21 @@
 package com.craftmend.storm.connection;
 
-import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 public interface StormDriver {
 
-    ResultSet executeQuery(String query, Object... arguments) throws SQLException;
+    void executeQuery(String query, Callback callback, Object... arguments) throws Exception;
     boolean execute(String query) throws SQLException;
     int executeUpdate(String query, Object... arguments) throws SQLException;
     DatabaseMetaData getMeta() throws SQLException;
     boolean isOpen();
     void close();
+
+    public interface Callback {
+        void onAccept(ResultSet rs) throws Exception;
+    }
 
 }

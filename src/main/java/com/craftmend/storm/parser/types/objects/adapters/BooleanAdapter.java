@@ -5,7 +5,7 @@ import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 
 public class BooleanAdapter extends StormTypeAdapter<Boolean> {
     @Override
-    public Boolean fromString(Object sqlValue) {
+    public Boolean fromSql(Object sqlValue) {
         return Boolean.valueOf(sqlValue.toString());
     }
 
