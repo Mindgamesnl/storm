@@ -54,12 +54,12 @@ public class SqliteTest {
         }
 
         // test queries
-        Collection<User> justMindgamesnl =
-                storm.buildQuery(User.class)
-                        .where("user_name", Where.EQUAL, "Mindgamesnl")
-                        .limit(1)
-                        .execute()
-                        .join();
+Collection<User> justMindgamesnl =
+        storm.buildQuery(User.class)
+                .where("user_name", Where.EQUAL, "Mindgamesnl")
+                .limit(1)
+                .execute()
+                .join();
 
         Assert.assertEquals("Mindgamesnl", justMindgamesnl.stream().findFirst().get().getUserName());
 
