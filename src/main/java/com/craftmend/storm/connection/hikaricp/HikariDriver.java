@@ -33,6 +33,7 @@ public class HikariDriver implements StormDriver {
 
     @Override
     public boolean execute(String query) throws SQLException {
+        System.out.println(query);
         try (Connection conn = ds.getConnection()) {
             try (Statement ps = conn.createStatement()) {
                 return ps.execute(query);

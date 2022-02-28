@@ -1,12 +1,16 @@
 package com.craftmend.storm.utils;
 
+import com.craftmend.storm.Storm;
 import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.enums.ColumnType;
 import com.craftmend.storm.api.enums.KeyType;
 import com.craftmend.storm.api.markers.Column;
 import com.craftmend.storm.api.markers.Table;
+import com.craftmend.storm.parser.ModelParser;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Reflection {
@@ -29,6 +33,16 @@ public class Reflection {
         return CaseConverter.camelToSnake(field.getName());
     }
 
+    public static ModelParser<? extends StormModel> getAnnotatedReference(Storm storm, Field field) {
+        if (field.isAnnotationPresent(Column.class)) {
+            Class<? extends StormModel>[] references = field.getAnnotation(Column.class).references();
+            if (references.length == 1) {
+                return storm.getParsedModel(references[0], false);
+            }
+        }
+        throw new IllegalArgumentException("One reference model was expected");
+    }
+
     public static KeyType getAnnotatedKeyType(Field field) {
         if (field.isAnnotationPresent(Column.class)) {
             return field.getAnnotation(Column.class).keyType();
@@ -41,6 +55,15 @@ public class Reflection {
             return field.getAnnotation(Column.class).autoIncrement();
         }
         return false;
+    }
+
+    public static String getAnnotatedMatchTo(Field field) {
+        if (field.isAnnotationPresent(Column.class)) {
+            String d = field.getAnnotation(Column.class).matchTo();
+            if (d.equals("")) return null;
+            return d;
+        }
+        return null;
     }
 
     public static String getAnnotatedDefaultValue(Field field) {
@@ -59,13 +82,19 @@ public class Reflection {
         return false;
     }
 
+    public static ColumnType getAnnotatedColumnType(Field field) {
+        if (field.isAnnotationPresent(Column.class)) {
+            return field.getAnnotation(Column.class).type();
+        }
+        return ColumnType.VALUE;
+    }
+
     public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
         fields.addAll(Arrays.asList(type.getDeclaredFields()));
 
         if (type.getSuperclass() != null) {
             getAllFields(fields, type.getSuperclass());
         }
-
         return fields;
     }
 

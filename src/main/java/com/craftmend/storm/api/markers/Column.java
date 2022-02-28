@@ -1,5 +1,7 @@
 package com.craftmend.storm.api.markers;
 
+import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.enums.ColumnType;
 import com.craftmend.storm.api.enums.KeyType;
 
 import java.lang.annotation.ElementType;
@@ -17,6 +19,12 @@ public @interface Column {
     String name() default "";
 
     /**
+     * @return The type of this column. Value is a normal mapped value, but ONE_TO_MANY attempts to polyfill this value
+     *      with all matching elements
+     */
+    ColumnType type() default ColumnType.VALUE;
+
+    /**
      * @return The maximum length of the value, used in types like varchars
      */
     int length() default 255;
@@ -25,6 +33,16 @@ public @interface Column {
      * @return Define additional key types
      */
     KeyType keyType() default KeyType.NONE;
+
+    /**
+     * @return Where a key points to
+     */
+    Class<? extends StormModel>[] references() default {};
+
+    /**
+     * @return Field in the @link{referenced} class to match while loading
+     */
+    String matchTo() default "";
 
     /**
      * @return Configure an (optional) default value. Integers will be wrapped appropriately.

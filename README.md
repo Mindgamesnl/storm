@@ -1,7 +1,15 @@
 <p align="center">
     <img src="https://user-images.githubusercontent.com/10709682/156048080-34987a54-d433-4931-acc9-0fc416b94f8b.png" />
 </p>
-Storm is a super simple to use, no bullshit MySql(ite) ORM with a query builder, support for type conversion, schema management and connection handling.
+Storm is a fast, easy to use, no-bullshit opinionated Java ORM inspired by Doctrine. The main goal of this project is to allow future-mats to easily implement Sql-based storage and relation solutions in my projects and easily prototype concepts, without harming production usability.
+
+## Features
+ - Automatic schema creation and updates based on models
+ - Built in support for java types (Integer, String, Uuid, Boolean) with an API to add your own
+ - Support for OneToMany mappings with arraylist columns
+ - Out-of-the-box adapters for Sqlite (flat file), Sqlite (Memory) and HiariCP-MariaDB
+ - Dynamic SQL Dialects depending on the target platform
+ - Incredibly easy to use API
 
 # Performance
 Tests ran on my main workstation, targeting a Sqlite flatfile and memory database.
@@ -20,6 +28,13 @@ class User extends StormModel {
     @Column
     private Integer score;
 
+    @Column(
+            type = ColumnType.ONE_TO_MANY,
+            references = {SocialPost.class},
+            matchTo = "poster"
+    )
+    private List<SocialPost> posts;
+
     @Column
     private UUID minecraftUserId = UUID.randomUUID();
 
@@ -31,10 +46,28 @@ class User extends StormModel {
 
 }
 
+public class SocialPost extends StormModel {
+
+    @Column(
+            notNull = true
+    )
+    private String content;
+
+    @Column(
+            keyType = KeyType.FOREIGN,
+            references = {User.class}
+    )
+    private Integer poster;
+
+}
+
+
 // create an instance
 Storm storm = new Storm(new SqliteDriver(dataFile));
 // register one table
 storm.migrate(new User());
+storm.migrate(new SocialPost());
+storm.runMigrations();
 
 // create a new user
 User mindgamesnl = new User();

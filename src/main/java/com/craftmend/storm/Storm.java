@@ -4,8 +4,11 @@ import com.craftmend.storm.api.StormModel;
 import com.craftmend.storm.api.builders.QueryBuilder;
 import com.craftmend.storm.connection.StormDriver;
 import com.craftmend.storm.parser.ModelParser;
-import com.craftmend.storm.parser.objects.ModelField;
+import com.craftmend.storm.parser.objects.ParsedField;
+import com.craftmend.storm.utils.ColumnDefinition;
+import lombok.Getter;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -16,7 +19,8 @@ public class Storm {
 
     private final Logger logger = Logger.getLogger(getClass().getSimpleName());
     private final Map<Class<? extends StormModel>, ModelParser<? extends StormModel>> registeredModels = new HashMap<>();
-    private final StormDriver driver;
+    @Getter private final StormDriver driver;
+    private boolean createdTables = false;
 
     /**
      * Initialize a new STORM instance with a given database driver
@@ -41,68 +45,81 @@ public class Storm {
      * @param model Model to register
      * @throws SQLException Something went boom
      */
-    public void migrate(StormModel model) throws SQLException {
+    public void registerModel(StormModel model) throws SQLException {
         if (registeredModels.containsKey(model.getClass())) return;
-        ModelParser<?> parsed = new ModelParser(model.getClass());
-
+        ModelParser<?> parsed = new ModelParser(model.getClass(), this, model);
         logger.info("Registering class <-> table (" + parsed.getTableName() +"<->" + model.getClass().getSimpleName() + ".java)");
+        registeredModels.put(model.getClass(), parsed);
+    }
 
-        try (ResultSet tables = driver.getMeta().getTables(null, null, parsed.getTableName(), null)) {
-            if (!tables.next()) {
-                // table doesn't exist.. creating
-                logger.info("Creating table " + parsed.getTableName() + "...");
-                driver.execute(model.statements().buildSqlTableCreateStatement(driver.getDialect()));
+    public void runMigrations() throws SQLException {
+        for (Map.Entry<Class<? extends StormModel>, ModelParser<? extends StormModel>> entry : registeredModels.entrySet()) {
+            ModelParser<? extends StormModel> parsed = entry.getValue();
+            StormModel model = parsed.getEmptyInstance();
+
+            try (ResultSet tables = driver.getMeta().getTables(null, null, parsed.getTableName(), null)) {
+                if (!tables.next()) {
+                    // table doesn't exist.. creating
+                    logger.info("Creating table " + parsed.getTableName() + "...");
+                    driver.execute(model.statements().buildSqlTableCreateStatement(driver.getDialect(), this));
+                }
             }
-        }
 
-        // find fields in table
-        Map<String, String> columnsInDatabase = new HashMap<>();
-        try (ResultSet tables = driver.getMeta().getColumns(null, null, parsed.getTableName(), null)) {
-            while(tables.next()) {
-                String type = tables.getString("TYPE_NAME");
-                String name = tables.getString("COLUMN_NAME");
-                columnsInDatabase.put(name, type);
+            // find fields in table
+            Map<String, String> columnsInDatabase = new HashMap<>();
+            try (ResultSet tables = driver.getMeta().getColumns(null, null, parsed.getTableName(), null)) {
+                while(tables.next()) {
+                    String type = tables.getString("TYPE_NAME");
+                    String name = tables.getString("COLUMN_NAME");
+                    columnsInDatabase.put(name, type);
+                }
             }
-        }
 
-        // compare local tables to the ones in the database, we might need to add, remove or update some
-        Set<String> missingInDatabase = new HashSet<>();
-        for (ModelField parsedField : parsed.getParsedFields()) {
-            missingInDatabase.add(parsedField.getColumnName());
-        }
-        missingInDatabase.removeAll(columnsInDatabase.keySet());
+            // compare local tables to the ones in the database, we might need to add, remove or update some
+            Set<String> missingInDatabase = new HashSet<>();
+            for (ParsedField parsedField : parsed.getParsedFields()) {
+                missingInDatabase.add(parsedField.getColumnName());
+            }
+            missingInDatabase.removeAll(columnsInDatabase.keySet());
 
-        // compare local
-        Set<String> missingInLocal = new HashSet<>();
-        missingInLocal.addAll(columnsInDatabase.keySet());
-        for (ModelField parsedField : parsed.getParsedFields()) {
-            missingInLocal.remove(parsedField.getColumnName());
-        }
+            // compare local
+            Set<String> missingInLocal = new HashSet<>();
+            missingInLocal.addAll(columnsInDatabase.keySet());
+            for (ParsedField parsedField : parsed.getParsedFields()) {
+                missingInLocal.remove(parsedField.getColumnName());
+            }
 
-        // drop remote fields
-        for (String columnName : missingInLocal) {
-            logger.warning("Dropping column '" + columnName + "' because it's not present in the local class");
-            driver.executeUpdate("ALTER TABLE %table DROP COLUMN %column;"
-                    .replace("%table", parsed.getTableName())
-                    .replace("%column", columnName));
-        }
+            // drop remote fields
+            for (String columnName : missingInLocal) {
+                logger.warning("Dropping column '" + columnName + "' because it's not present in the local class");
+                driver.executeUpdate("ALTER TABLE %table DROP COLUMN %column;"
+                        .replace("%table", parsed.getTableName())
+                        .replace("%column", columnName));
+            }
 
-        // add remote fields
-        for (String columnName : missingInDatabase) {
-            // find type
-            for (ModelField parsedField : parsed.getParsedFields()) {
-                if (parsedField.getColumnName().equals(columnName)) {
-                    logger.warning("Column '" + columnName + "' is not present in the remote table schema. Altering table and adding type " + driver.getDialect().compileColumn(parsedField));
-                    String statement = "ALTER TABLE %table ADD COLUMN %columnName %columnData;"
-                            .replace("%table", parsed.getTableName())
-                            .replace("%columnName", columnName)
-                            .replace("%columnData", driver.getDialect().compileColumn(parsedField));
-                    driver.executeUpdate(statement);
+            // add remote fields
+            for (String columnName : missingInDatabase) {
+                // find type
+                for (ParsedField parsedField : parsed.getParsedFields()) {
+                    if (parsedField.getColumnName().equals(columnName)) {
+                        logger.warning("Column '" + columnName + "' is not present in the remote table schema. Altering table and adding type " + driver.getDialect().compileColumn(parsedField));
+
+                        ColumnDefinition cd = driver.getDialect().compileColumn(parsedField);
+                        String sql = cd.getColumnSql();
+                        if (cd.getConfigurationSql() != null) {
+                            sql += ", " + cd.getConfigurationSql();
+                        }
+
+                        String statement = "ALTER TABLE %table ADD COLUMN %columnName %columnData;"
+                                .replace("%table", parsed.getTableName())
+                                .replace("%columnName", columnName)
+                                .replace("%columnData", sql);
+                        driver.executeUpdate(statement);
+                    }
                 }
             }
         }
-
-        registeredModels.put(model.getClass(), parsed);
+        this.createdTables = true;
     }
 
     /**
@@ -110,6 +127,7 @@ public class Storm {
      * @return Query for you to play with
      */
     public <T extends StormModel> QueryBuilder<T> buildQuery(Class<T> model) {
+        catchState();
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(model);
         if (parser == null) throw new IllegalArgumentException("The model " + model.getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
         return new QueryBuilder<>(model, parser, this);
@@ -123,6 +141,7 @@ public class Storm {
      * @throws Exception
      */
     public <T extends StormModel> CompletableFuture<Collection<T>> executeQuery(QueryBuilder<T> query) throws Exception {
+        catchState();
         CompletableFuture<Collection<T>> future = new CompletableFuture<>();
         HashSet<T> results = new HashSet<>();
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(query.getModel());
@@ -130,7 +149,7 @@ public class Storm {
         QueryBuilder.PreparedQuery pq = query.build();
         driver.executeQuery(pq.getQuery(), rows -> {
             while (rows.next()) {
-                results.add(parser.fromResultSet(rows));
+                results.add(parser.fromResultSet(rows, parser.getRelationFields()));
             }
             future.complete(results);
         }, pq.getValues());
@@ -147,6 +166,7 @@ public class Storm {
      * @throws Exception
      */
     public <T extends StormModel> CompletableFuture<Collection<T>> findAll(Class<T> model) throws Exception {
+        catchState();
         CompletableFuture<Collection<T>> future = new CompletableFuture<>();
         HashSet<T> results = new HashSet<>();
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(model);
@@ -154,7 +174,7 @@ public class Storm {
 
         driver.executeQuery("select * from " + parser.getTableName(), rows -> {
             while (rows.next()) {
-                results.add(parser.fromResultSet(rows));
+                results.add(parser.fromResultSet(rows, parser.getRelationFields()));
             }
             future.complete(results);
         });
@@ -167,10 +187,28 @@ public class Storm {
      * @throws SQLException
      */
     public void delete(StormModel model) throws SQLException {
+        catchState();
         ModelParser parser = registeredModels.get(model.getClass());
         if (parser == null) throw new IllegalArgumentException("The model " + model.getClass().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
         if (model.getId() == null) throw new IllegalArgumentException("This model doesn't have an ID");
         driver.executeUpdate("DELETE FROM " + parser.getTableName() + " WHERE id=" + model.getId());
+    }
+
+    public <T extends StormModel> ModelParser<T> getParsedModel(Class<T> m, boolean loadIfNotFound) {
+        ModelParser<T> parser = (ModelParser<T>) registeredModels.get(m);
+        if (parser == null) {
+            if (loadIfNotFound) {
+                try {
+                    StormModel sm = m.getConstructor().newInstance();
+                    registerModel(sm);
+                    return getParsedModel(m, false);
+                } catch (SQLException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+                    // well... we tried!
+                }
+            }
+            throw new IllegalArgumentException("The model " + m.getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
+        }
+        return parser;
     }
 
     /**
@@ -180,6 +218,7 @@ public class Storm {
      * @return int Returns the amount of effected rows
      */
     public int save(StormModel model) throws SQLException {
+        catchState();
         String updateOrInsert = "update %tableName set %psUpdateValues where id=%id";
         String insertStatement = "insert into %tableName(%insertVars) values(%insertValues);";
 
@@ -187,17 +226,17 @@ public class Storm {
         StringBuilder updateValues = new StringBuilder();
         StringBuilder insertRow = new StringBuilder();
         String insertPointers = "";
-        int nonAutoFields = model.parsed().getParsedFields().length;
-        for (ModelField parsedField : model.parsed().getParsedFields()) {
+        int nonAutoFields = model.parsed(this).getParsedFields().length;
+        for (ParsedField parsedField : model.parsed(this).getParsedFields()) {
             if (parsedField.isAutoIncrement()) {
                 nonAutoFields--;
             }
         }
         Object[] preparedValues = new Object[nonAutoFields];
         int pvi = 0;
-        for (int i = 0; i < model.parsed().getParsedFields().length; i++) {
+        for (int i = 0; i < model.parsed(this).getParsedFields().length; i++) {
             boolean notLast = (i+1) != nonAutoFields;
-            ModelField mf = model.parsed().getParsedFields()[i];
+            ParsedField mf = model.parsed(this).getParsedFields()[i];
             if (mf.isAutoIncrement()) {
                 // skip auto fields
                 continue;
@@ -220,11 +259,11 @@ public class Storm {
         insertStatement = insertStatement
                 .replace("%insertVars", insertRow.toString())
                 .replace("%insertValues", insertPointers)
-                .replaceAll("%tableName", model.parsed().getTableName());
+                .replaceAll("%tableName", model.parsed(this).getTableName());
 
         updateOrInsert = updateOrInsert
                 .replace("%psUpdateValues", updateValues.toString())
-                .replaceAll("%tableName", model.parsed().getTableName())
+                .replaceAll("%tableName", model.parsed(this).getTableName())
                 .replace("%id", model.getId() + "");
 
 
@@ -232,6 +271,12 @@ public class Storm {
             return driver.executeUpdate(insertStatement, preparedValues);
         } else {
             return driver.executeUpdate(updateOrInsert, preparedValues);
+        }
+    }
+
+    private void catchState() {
+        if (!createdTables) {
+            throw new IllegalStateException("You must call runMigrations() to seed Storm before you can use any api methods");
         }
     }
 

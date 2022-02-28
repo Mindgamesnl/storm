@@ -5,7 +5,8 @@ import com.craftmend.storm.api.StormModel;
 import com.craftmend.storm.api.enums.Order;
 import com.craftmend.storm.api.enums.Where;
 import com.craftmend.storm.parser.ModelParser;
-import com.craftmend.storm.parser.objects.ModelField;
+import com.craftmend.storm.parser.objects.ParsedField;
+import com.craftmend.storm.parser.objects.RelationField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -83,7 +84,7 @@ public class QueryBuilder<T extends StormModel> {
             WhereClause wc = whereClauseList.get(i);
             boolean isLast = i+1 == whereClauseList.size();
 
-            ModelField f = parser.fieldByColumnName(wc.column);
+            ParsedField f = parser.fieldByColumnName(wc.column);
             if (f == null) throw new IllegalArgumentException("there's no column called " + wc.column + " in this model");
 
             sql.append(" WHERE ")
@@ -102,7 +103,7 @@ public class QueryBuilder<T extends StormModel> {
         }
 
         if (this.order != null) {
-            ModelField f = parser.fieldByColumnName(order.column);
+            ParsedField f = parser.fieldByColumnName(order.column);
             if (f == null) throw new IllegalArgumentException("there's no column called " + order.column + " in this model");
             sql.append(" ORDER BY " + this.order.column + " " + this.order.order.toString());
         }

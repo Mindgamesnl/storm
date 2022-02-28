@@ -4,6 +4,7 @@ import com.craftmend.storm.Storm;
 import com.craftmend.storm.api.enums.Where;
 import com.craftmend.storm.connection.sqlite.SqliteFileDriver;
 import lombok.SneakyThrows;
+import models.SocialPost;
 import models.User;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,7 +23,10 @@ public class SqliteTest {
         if (dataFile.exists()) dataFile.delete();
 
         Storm storm = new Storm(new SqliteFileDriver(dataFile));
-        storm.migrate(new User());
+        storm.registerModel(new User());
+        storm.registerModel(new SocialPost());
+
+        storm.runMigrations();
 
         // create a new user
         User mindgamesnl = new User();

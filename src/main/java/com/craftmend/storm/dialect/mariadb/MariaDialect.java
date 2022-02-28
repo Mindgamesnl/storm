@@ -2,19 +2,23 @@ package com.craftmend.storm.dialect.mariadb;
 
 import com.craftmend.storm.api.enums.KeyType;
 import com.craftmend.storm.dialect.Dialect;
-import com.craftmend.storm.parser.objects.ModelField;
+import com.craftmend.storm.parser.ModelParser;
+import com.craftmend.storm.parser.objects.ParsedField;
+import com.craftmend.storm.parser.objects.RelationField;
+import com.craftmend.storm.utils.ColumnDefinition;
+import com.craftmend.storm.utils.Reflection;
 
 public class MariaDialect implements Dialect {
 
     @Override
-    public String compileColumn(ModelField<?> modelField) {
+    public ColumnDefinition compileColumn(ParsedField<?> modelField) {
         String sqlTypeDeclaration = modelField.getAdapter().getSqlBaseType();
         sqlTypeDeclaration = sqlTypeDeclaration.replace("%max", modelField.getMax() + "");
-        return modelField.getColumnName() + " " + sqlTypeDeclaration +
+        String column = modelField.getColumnName() + " " + sqlTypeDeclaration +
 
                 (modelField.getKeyType() == KeyType.PRIMARY ? " PRIMARY KEY" : "") +
 
-                (modelField.isAutoIncrement() ? " AUTO INCREMENT" : "") +
+                (modelField.isAutoIncrement() ? " AUTO_INCREMENT" : "") +
 
                 (modelField.getDefaultValue() != null ? " DEFAULT(" +
                         (modelField.getAdapter().escapeAsString() ? "'" + modelField.getDefaultValue() + "'" : modelField.getDefaultValue())
@@ -23,6 +27,14 @@ public class MariaDialect implements Dialect {
                 (modelField.isNotNull() ? " NOT NULL" : "") +
 
                 (modelField.isUnique() ? " UNIQUE" : "");
+
+        String configuration = null;
+        if (modelField.getKeyType() == KeyType.FOREIGN) {
+            configuration = ", FOREIGN KEY (" + modelField.getColumnName() + ") REFERENCES " +
+                    Reflection.getAnnotatedReference(modelField.getStorm(), modelField.getReflectedField())
+                            .getTableName() + "(id)";
+        }
+        return new ColumnDefinition(column, configuration);
     }
 
 }

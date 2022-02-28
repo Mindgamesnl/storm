@@ -1,10 +1,12 @@
 package models;
 
 import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.enums.ColumnType;
 import com.craftmend.storm.api.markers.Column;
 import com.craftmend.storm.api.markers.Table;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -19,6 +21,13 @@ public class User extends StormModel {
 
     @Column
     private UUID minecraftUserId = UUID.randomUUID();
+
+    @Column(
+            type = ColumnType.ONE_TO_MANY,
+            references = {SocialPost.class},
+            matchTo = "poster"
+    )
+    private List<SocialPost> posts;
 
     @Column(
             name = "email",

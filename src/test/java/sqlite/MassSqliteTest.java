@@ -10,7 +10,6 @@ import org.junit.Test;
 import performance.StopWatch;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.Collection;
 
 public class MassSqliteTest {
@@ -31,16 +30,21 @@ public class MassSqliteTest {
 
         stopWatch.start("Initializing database");
         Storm storm = new Storm(stormDriver);
-        storm.migrate(new User());
+        storm.registerModel(new User());
+        storm.runMigrations();
+
         stopWatch.stop();
         int accounts = 10000;
 
         stopWatch.start("creating and inserting one single account");
+
         User singleUser = new User();
         singleUser.setUserName("JustOneMatt");
         singleUser.setEmailAddress("IAmUniueq@craftmend.com");
         singleUser.setScore(978);
+
         storm.save(singleUser);
+
         stopWatch.stop();
 
         stopWatch.start("creating and inserting " + accounts + " accounts");

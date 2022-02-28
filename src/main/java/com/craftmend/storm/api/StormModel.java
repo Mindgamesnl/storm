@@ -1,5 +1,6 @@
 package com.craftmend.storm.api;
 
+import com.craftmend.storm.Storm;
 import com.craftmend.storm.api.builders.StatementBuilder;
 import com.craftmend.storm.api.enums.KeyType;
 import com.craftmend.storm.api.markers.Column;
@@ -23,9 +24,9 @@ public abstract class StormModel {
     )
     private Integer id;
 
-    public ModelParser<? extends StormModel> parsed() {
+    public ModelParser<? extends StormModel> parsed(Storm orm) {
         if (parsedSelf != null) return parsedSelf;
-        parsedSelf = new ModelParser(getClass());
+        parsedSelf = new ModelParser(getClass(), orm, this);
         return parsedSelf;
     }
 
