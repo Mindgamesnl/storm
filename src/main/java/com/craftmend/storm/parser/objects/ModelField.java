@@ -6,6 +6,7 @@ import com.craftmend.storm.parser.types.TypeRegistry;
 import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 import com.craftmend.storm.utils.Reflection;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 
@@ -22,6 +23,7 @@ public class ModelField {
     @Getter private boolean autoIncrement;
     @Getter private boolean notNull;
     @Getter private String defaultValue;
+    private Field reflectedField;
 
     public ModelField(Class<? extends StormModel> modelClass, Field field) {
         this.model = modelClass;
@@ -35,6 +37,13 @@ public class ModelField {
         this.autoIncrement = Reflection.getAnnotatedAutoIncrement(field);
         this.notNull = Reflection.getAnnotatedNotNull(field);
         this.defaultValue = Reflection.getAnnotatedDefaultValue(field);
+        this.reflectedField = field;
+    }
+
+    @SneakyThrows
+    public Object valueOn(StormModel model) {
+        this.reflectedField.setAccessible(true);
+        return this.reflectedField.get(model);
     }
 
     public String buildSqlType() {

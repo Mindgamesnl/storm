@@ -112,9 +112,62 @@ public class Storm {
      * Save the model in the database.
      * This either inserts it as a new row, or updates an existing row if there already is a row with this ID
      * @param model Target to save
+     * @return int Returns the amount of effected rows
      */
-    public void save(StormModel model) throws SQLException {
+    public int save(StormModel model) throws SQLException {
+        String updateOrInsert = "update %tableName set %psUpdateValues where id=%id";
+        String insertStatement = "insert into %tableName(%insertVars) values(%insertValues);";
 
+        // ps update value things
+        StringBuilder updateValues = new StringBuilder();
+        StringBuilder insertRow = new StringBuilder();
+        String insertPointers = "";
+        int nonAutoFields = model.parsed().getParsedFields().length;
+        for (ModelField parsedField : model.parsed().getParsedFields()) {
+            if (parsedField.isAutoIncrement()) {
+                nonAutoFields--;
+            }
+        }
+        Object[] preparedValues = new Object[nonAutoFields];
+        int pvi = 0;
+        for (int i = 0; i < model.parsed().getParsedFields().length; i++) {
+            boolean notLast = (i+1) != nonAutoFields;
+            ModelField mf = model.parsed().getParsedFields()[i];
+            if (mf.isAutoIncrement()) {
+                // skip auto fields
+                continue;
+            }
+            preparedValues[pvi] = mf.valueOn(model);
+            pvi++;
+            updateValues.append(mf.getColumnName() + " = ?");
+            if (notLast) {
+                updateValues.append(", ");
+            }
+
+            insertRow.append(mf.getColumnName());
+            insertPointers += "?";
+            if (notLast) {
+                insertRow.append(", ");
+                insertPointers += ", ";
+            }
+        }
+
+        insertStatement = insertStatement
+                .replace("%insertVars", insertRow.toString())
+                .replace("%insertValues", insertPointers)
+                .replaceAll("%tableName", model.parsed().getTableName());
+
+        updateOrInsert = updateOrInsert
+                .replace("%psUpdateValues", updateValues.toString())
+                .replaceAll("%tableName", model.parsed().getTableName())
+                .replace("%id", model.getId() + "");
+
+
+        if (model.getId() == null) {
+            return driver.executeUpdate(insertStatement, preparedValues);
+        } else {
+            return driver.executeUpdate(updateOrInsert, preparedValues);
+        }
     }
 
 }

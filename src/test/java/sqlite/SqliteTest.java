@@ -15,12 +15,18 @@ public class SqliteTest {
     public void testSqlite() {
         File dataFile = new File("test-data/database.db");
         dataFile.mkdirs();
-        if (dataFile.exists()) dataFile.delete();
+        // if (dataFile.exists()) dataFile.delete();
 
         Storm storm = new Storm(new SqliteDriver(dataFile));
         storm.migrate(new SimpleUserModel());
 
-
+        // create a new user
+        SimpleUserModel user = new SimpleUserModel();
+        user.setUserName("Mindgamesnl");
+        user.setEmailAddress("mats@toetmats.nl");
+        user.setId(1);
+        user.setScore(9009);
+        storm.save(user);
     }
 
 }

@@ -20,14 +20,6 @@ public class StatementBuilder {
             sb.append(" " + mf.buildSqlType() + (isLast ? "" : ","));
         }
 
-        // parse constraints
-        for (ModelField parsedField : model.parsed().getParsedFields()) {
-            if (parsedField.getKeyType() == KeyType.PRIMARY) {
-                //sb.append(",");
-                //sb.append("PRIMARY KEY (" + parsedField.getColumnName() +")");
-            }
-        }
-
         sb.append(")");
         return sb.toString();
     }
