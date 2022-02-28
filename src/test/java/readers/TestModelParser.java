@@ -2,8 +2,7 @@ package readers;
 
 import com.craftmend.storm.parser.ModelParser;
 import com.craftmend.storm.parser.objects.ModelField;
-import lombok.SneakyThrows;
-import models.SimpleUserModel;
+import models.User;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +11,7 @@ public class TestModelParser {
     @Test
     public void testParser() {
         int fieldCount = 4;
-        SimpleUserModel simpleUser = new SimpleUserModel();
+        User simpleUser = new User();
 
         ModelParser parser = simpleUser.parsed();
         // assert that all 3 fields have been parsed properly

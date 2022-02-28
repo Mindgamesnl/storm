@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @Table(name = "user")
-public class SimpleUserModel extends StormModel {
+public class User extends StormModel {
 
     @Column
     private String userName;

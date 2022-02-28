@@ -105,6 +105,10 @@ public class Storm {
         registeredModels.put(model.getClass(), parsed);
     }
 
+    /**
+     * @param model Start a new query
+     * @return Query for you to play with
+     */
     public <T extends StormModel> QueryBuilder<T> buildQuery(Class<T> model) {
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(model);
         if (parser == null) throw new IllegalArgumentException("The model " + model.getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
@@ -156,6 +160,17 @@ public class Storm {
         });
 
         return future;
+    }
+
+    /**
+     * @param model Delete a row
+     * @throws SQLException
+     */
+    public void delete(StormModel model) throws SQLException {
+        ModelParser parser = registeredModels.get(model.getClass());
+        if (parser == null) throw new IllegalArgumentException("The model " + model.getClass().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
+        if (model.getId() == null) throw new IllegalArgumentException("This model doesn't have an ID");
+        driver.executeUpdate("DELETE FROM " + parser.getTableName() + " WHERE id=" + model.getId());
     }
 
     /**
