@@ -5,6 +5,7 @@ import com.craftmend.storm.connection.StormDriver;
 import com.craftmend.storm.connection.sqlite.SqliteFileDriver;
 import com.craftmend.storm.connection.sqlite.SqliteMemoryDriver;
 import lombok.SneakyThrows;
+import models.SocialPost;
 import models.User;
 import org.junit.Test;
 import performance.StopWatch;
@@ -31,6 +32,7 @@ public class MassSqliteTest {
         stopWatch.start("Initializing database");
         Storm storm = new Storm(stormDriver);
         storm.registerModel(new User());
+        storm.registerModel(new SocialPost());
         storm.runMigrations();
 
         stopWatch.stop();
