@@ -5,6 +5,7 @@ import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 public class StringAdapter extends StormTypeAdapter<String> {
     @Override
     public String fromSql(Object sqlValue) {
+        if (sqlValue == null) return null;
         return sqlValue.toString();
     }
 

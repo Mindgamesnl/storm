@@ -45,7 +45,7 @@ public class Storm {
         if (registeredModels.containsKey(model.getClass())) return;
         ModelParser<?> parsed = new ModelParser(model.getClass());
 
-        logger.info("Registering class <-> table (" + parsed.getTableName() +" <->" + model.getClass().getSimpleName() + ".java)");
+        logger.info("Registering class <-> table (" + parsed.getTableName() +"<->" + model.getClass().getSimpleName() + ".java)");
 
         try (ResultSet tables = driver.getMeta().getTables(null, null, parsed.getTableName(), null)) {
             if (!tables.next()) {
@@ -128,7 +128,6 @@ public class Storm {
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(query.getModel());
         if (parser == null) throw new IllegalArgumentException("The model " + query.getModel().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
         QueryBuilder.PreparedQuery pq = query.build();
-        System.out.println(pq.getQuery());
         driver.executeQuery(pq.getQuery(), rows -> {
             while (rows.next()) {
                 results.add(parser.fromResultSet(rows));

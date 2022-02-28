@@ -2,7 +2,7 @@ package sqlite;
 
 import com.craftmend.storm.Storm;
 import com.craftmend.storm.api.enums.Where;
-import com.craftmend.storm.connection.sqlite.SqliteDriver;
+import com.craftmend.storm.connection.sqlite.SqliteFileDriver;
 import lombok.SneakyThrows;
 import models.User;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ public class SqliteTest {
         dataFile.mkdirs();
         if (dataFile.exists()) dataFile.delete();
 
-        Storm storm = new Storm(new SqliteDriver(dataFile));
+        Storm storm = new Storm(new SqliteFileDriver(dataFile));
         storm.migrate(new User());
 
         // create a new user
