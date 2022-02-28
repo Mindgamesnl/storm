@@ -26,6 +26,7 @@ public class SqliteTest {
         user.setEmailAddress("mats@toetmats.nl");
         user.setId(1);
         user.setScore(9009);
+
         storm.save(user);
     }
 

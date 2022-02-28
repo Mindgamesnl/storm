@@ -4,9 +4,11 @@ import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 import com.craftmend.storm.parser.types.objects.adapters.BooleanAdapter;
 import com.craftmend.storm.parser.types.objects.adapters.IntegerAdapter;
 import com.craftmend.storm.parser.types.objects.adapters.StringAdapter;
+import com.craftmend.storm.parser.types.objects.adapters.UUIDAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TypeRegistry {
 
@@ -16,6 +18,7 @@ public class TypeRegistry {
         adapters.put(String.class, new StringAdapter());
         adapters.put(Integer.class, new IntegerAdapter());
         adapters.put(Boolean.class, new BooleanAdapter());
+        adapters.put(UUID.class, new UUIDAdapter());
     }
 
     public static void registerAdapter(Class type, StormTypeAdapter<?> adapter) {

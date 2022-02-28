@@ -7,6 +7,9 @@ import com.craftmend.storm.parser.ModelParser;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Core of any storm model, has required api parsing flags and configures a default ID primary key
+ */
 public abstract class StormModel {
 
     private ModelParser parsedSelf;
