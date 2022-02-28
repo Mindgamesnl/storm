@@ -9,6 +9,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Table {
 
+    /**
+     * @return Table name
+     */
     String name();
 
 }

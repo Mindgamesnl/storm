@@ -6,6 +6,7 @@ public class IntegerAdapter extends StormTypeAdapter<Integer> {
 
     @Override
     public Integer fromSql(Object sqlValue) {
+        if (sqlValue == null) return null;
         return Integer.valueOf(sqlValue.toString());
     }
 

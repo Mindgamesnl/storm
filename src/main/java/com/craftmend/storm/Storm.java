@@ -128,6 +128,7 @@ public class Storm {
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(query.getModel());
         if (parser == null) throw new IllegalArgumentException("The model " + query.getModel().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
         QueryBuilder.PreparedQuery pq = query.build();
+        System.out.println(pq.getQuery());
         driver.executeQuery(pq.getQuery(), rows -> {
             while (rows.next()) {
                 results.add(parser.fromResultSet(rows));

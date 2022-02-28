@@ -1,7 +1,6 @@
 package com.craftmend.storm.connection;
 
 import com.craftmend.storm.dialect.Dialect;
-import com.craftmend.storm.utils.Syntax;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;

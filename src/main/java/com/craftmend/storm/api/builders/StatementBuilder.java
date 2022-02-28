@@ -3,7 +3,6 @@ package com.craftmend.storm.api.builders;
 import com.craftmend.storm.api.StormModel;
 import com.craftmend.storm.dialect.Dialect;
 import com.craftmend.storm.parser.objects.ModelField;
-import com.craftmend.storm.utils.Syntax;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

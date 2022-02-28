@@ -5,7 +5,6 @@ import com.craftmend.storm.api.enums.KeyType;
 import com.craftmend.storm.parser.types.TypeRegistry;
 import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 import com.craftmend.storm.utils.Reflection;
-import com.craftmend.storm.utils.Syntax;
 import lombok.Getter;
 import lombok.SneakyThrows;
 

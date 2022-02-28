@@ -33,7 +33,7 @@ public class SqliteTest {
 
         User niceFriend = new User();
         niceFriend.setUserName("Some Friend");
-        niceFriend.setEmailAddress("friend@pornhub.com");
+        niceFriend.setEmailAddress("friend@test.com");
         niceFriend.setScore(50);
         storm.save(niceFriend);
 
