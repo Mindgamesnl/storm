@@ -9,6 +9,7 @@ import com.craftmend.storm.parser.objects.ParsedField;
 import com.craftmend.storm.parser.objects.RelationField;
 import com.craftmend.storm.utils.Reflection;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -21,6 +22,7 @@ import java.util.List;
 
 public class ModelParser<T extends StormModel> {
 
+    @Getter @Setter private boolean migrated = false;
     @Getter private final String tableName;
     @Getter private final ParsedField[] parsedFields;
     @Getter private List<RelationField> relationFields = new ArrayList<>();

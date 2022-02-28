@@ -56,6 +56,7 @@ public class Storm {
         for (Map.Entry<Class<? extends StormModel>, ModelParser<? extends StormModel>> entry : registeredModels.entrySet()) {
             ModelParser<? extends StormModel> parsed = entry.getValue();
             StormModel model = parsed.getEmptyInstance();
+            if (parsed.isMigrated()) continue;
 
             try (ResultSet tables = driver.getMeta().getTables(null, null, parsed.getTableName(), null)) {
                 if (!tables.next()) {
@@ -118,6 +119,8 @@ public class Storm {
                     }
                 }
             }
+
+            parsed.setMigrated(true);
         }
         this.createdTables = true;
     }
