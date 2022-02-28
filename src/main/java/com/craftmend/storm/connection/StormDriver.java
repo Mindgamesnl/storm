@@ -1,5 +1,7 @@
 package com.craftmend.storm.connection;
 
+import com.craftmend.storm.utils.Syntax;
+
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +14,7 @@ public interface StormDriver {
     DatabaseMetaData getMeta() throws SQLException;
     boolean isOpen();
     void close();
+    Syntax getSyntax();
 
     public interface Callback {
         void onAccept(ResultSet rs) throws Exception;

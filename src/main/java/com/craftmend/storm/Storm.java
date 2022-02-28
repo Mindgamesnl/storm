@@ -51,7 +51,7 @@ public class Storm {
             if (!tables.next()) {
                 // table doesn't exist.. creating
                 logger.info("Creating table " + parsed.getTableName() + "...");
-                driver.execute(model.statements().buildSqlTableCreateStatement());
+                driver.execute(model.statements().buildSqlTableCreateStatement(driver.getSyntax()));
             }
         }
 
@@ -92,11 +92,11 @@ public class Storm {
             // find type
             for (ModelField parsedField : parsed.getParsedFields()) {
                 if (parsedField.getColumnName().equals(columnName)) {
-                    logger.warning("Column '" + columnName + "' is not present in the remote table schema. Altering table and adding type " + parsedField.buildSqlType());
+                    logger.warning("Column '" + columnName + "' is not present in the remote table schema. Altering table and adding type " + parsedField.buildSqlType(driver.getSyntax()));
                     String statement = "ALTER TABLE %table ADD COLUMN %columnName %columnData;"
                             .replace("%table", parsed.getTableName())
                             .replace("%columnName", columnName)
-                            .replace("%columnData", parsedField.buildSqlType());
+                            .replace("%columnData", parsedField.buildSqlType(driver.getSyntax()));
                     driver.executeUpdate(statement);
                 }
             }

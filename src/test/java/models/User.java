@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-@Table(name = "user")
+@Table(name = "storm_user")
 public class User extends StormModel {
 
     @Column

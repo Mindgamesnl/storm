@@ -5,6 +5,7 @@ import com.craftmend.storm.api.enums.KeyType;
 import com.craftmend.storm.parser.types.TypeRegistry;
 import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 import com.craftmend.storm.utils.Reflection;
+import com.craftmend.storm.utils.Syntax;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -52,13 +53,13 @@ public class ModelField<T> {
         return (adapter.escapeAsString() ? "'" + toEscape + "'" : toEscape);
     }
 
-    public String buildSqlType() {
+    public String buildSqlType(Syntax syntax) {
         // build value
         String sqlTypeDeclaration = this.adapter.getSqlBaseType();
         sqlTypeDeclaration = sqlTypeDeclaration.replace("%max", this.max + "");
         return this.columnName + " " + sqlTypeDeclaration +
                 (this.keyType == KeyType.PRIMARY ? " PRIMARY KEY" : "") +
-                (this.autoIncrement ? " AUTOINCREMENT" : "") +
+                (this.autoIncrement ? " " + syntax.getAutoIncrement() : "") +
                 (this.defaultValue != null ? " DEFAULT(" +
                         (adapter.escapeAsString() ? "'" + this.defaultValue + "'" : this.defaultValue)
                         + ")" : "") +
