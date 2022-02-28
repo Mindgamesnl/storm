@@ -12,16 +12,16 @@ public class StatementBuilder {
 
     public String buildSqlTableCreateStatement() {
         StringBuilder sb = new StringBuilder();
-        sb.append("CREATE TABLE " + model.getParsedSelf().getTableName() + " (");
+        sb.append("CREATE TABLE " + model.parsed().getTableName() + " (");
 
-        for (int i = 0; i < model.getParsedSelf().getParsedFields().length; i++) {
-            ModelField mf = model.getParsedSelf().getParsedFields()[i];
-            boolean isLast = model.getParsedSelf().getParsedFields().length == i + 1;
+        for (int i = 0; i < model.parsed().getParsedFields().length; i++) {
+            ModelField mf = model.parsed().getParsedFields()[i];
+            boolean isLast = model.parsed().getParsedFields().length == i + 1;
             sb.append(" " + mf.buildSqlType() + (isLast ? "" : ","));
         }
 
         // parse constraints
-        for (ModelField parsedField : model.getParsedSelf().getParsedFields()) {
+        for (ModelField parsedField : model.parsed().getParsedFields()) {
             if (parsedField.getKeyType() == KeyType.PRIMARY) {
                 sb.append(",");
                 sb.append("PRIMARY KEY (" + parsedField.getColumnName() +")");

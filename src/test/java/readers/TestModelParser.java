@@ -14,7 +14,7 @@ public class TestModelParser {
         int fieldCount = 4;
         SimpleUserModel simpleUser = new SimpleUserModel();
 
-        ModelParser parser = simpleUser.getParsedSelf();
+        ModelParser parser = simpleUser.parsed();
         // assert that all 3 fields have been parsed properly
         Assert.assertEquals(fieldCount, parser.getParsedFields().length);
         // all 3 classes should have a parser
@@ -24,7 +24,7 @@ public class TestModelParser {
         }
 
         // table create statements should include all fields
-        String tableCreateStatement = simpleUser.getStatementBuilder().buildSqlTableCreateStatement();
+        String tableCreateStatement = simpleUser.statements().buildSqlTableCreateStatement();
         Assert.assertEquals(fieldCount, tableCreateStatement.split(",").length);
     }
 

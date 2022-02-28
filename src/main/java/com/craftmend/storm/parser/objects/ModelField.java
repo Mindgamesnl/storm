@@ -41,8 +41,8 @@ public class ModelField {
         sqlTypeDeclaration = sqlTypeDeclaration.replace("%max", this.max + "");
         return this.columnName + " " + sqlTypeDeclaration +
                 (this.notNull ? " NOT NULL" : "") +
-                (this.autoIncrement ? " AUTO_INCREMENT" : "") +
-                (this.unique ? " UNIQUE" : "");
+                (this.unique ? " UNIQUE" : "") +
+                (this.autoIncrement ? " AUTO_INCREMENT" : "");
     }
 
 }

@@ -7,24 +7,30 @@ import com.craftmend.storm.parser.ModelParser;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 public abstract class StormModel {
 
-    @Getter private final ModelParser parsedSelf;
-    @Getter private final StatementBuilder statementBuilder;
+    private ModelParser parsedSelf;
+    private StatementBuilder statementBuilder;
 
+    @Getter
+    @Setter
     @Column(
             unique = true,
             autoIncrement = true,
-            notNull = true,
             keyType = KeyType.PRIMARY
     )
     private Integer id;
 
-    public StormModel() {
-        this.parsedSelf = new ModelParser(getClass());
-        this.statementBuilder = new StatementBuilder(this);
+    public ModelParser parsed() {
+        if (parsedSelf != null) return parsedSelf;
+        parsedSelf = new ModelParser(getClass());
+        return parsedSelf;
+    }
+
+    public StatementBuilder statements() {
+        if (statementBuilder != null) return statementBuilder;
+        statementBuilder = new StatementBuilder(this);
+        return statementBuilder;
     }
 
 }

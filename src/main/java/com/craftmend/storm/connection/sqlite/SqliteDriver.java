@@ -3,7 +3,6 @@ package com.craftmend.storm.connection.sqlite;
 import com.craftmend.storm.connection.StormDriver;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.*;
 
 public class SqliteDriver implements StormDriver {
@@ -16,7 +15,7 @@ public class SqliteDriver implements StormDriver {
     }
 
     @Override
-    public ResultSet executeQuery(String query, Object... arguments) throws IOException, SQLException {
+    public ResultSet executeQuery(String query, Object... arguments) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             for (int i = 0; i < arguments.length; i++) {
                 ps.setObject(i + 1, arguments[i]);
@@ -26,13 +25,25 @@ public class SqliteDriver implements StormDriver {
     }
 
     @Override
-    public int executeUpdate(String query, Object... arguments) throws IOException, SQLException {
+    public boolean execute(String query) throws SQLException {
+        try (Statement ps = conn.createStatement()) {
+            return ps.execute(query);
+        }
+    }
+
+    @Override
+    public int executeUpdate(String query, Object... arguments) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             for (int i = 0; i < arguments.length; i++) {
                 ps.setObject(i + 1, arguments[i]);
             }
             return ps.executeUpdate();
         }
+    }
+
+    @Override
+    public DatabaseMetaData getMeta() throws SQLException {
+        return conn.getMetaData();
     }
 
     @Override
