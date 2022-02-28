@@ -3,7 +3,6 @@ package com.craftmend.storm.connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.function.Consumer;
 
 public interface StormDriver {
 

@@ -48,6 +48,10 @@ public class ModelField<T> {
         );
     }
 
+    public Object toSqlStringType(Object toEscape) {
+        return (adapter.escapeAsString() ? "'" + toEscape + "'" : toEscape);
+    }
+
     public String buildSqlType() {
         // build value
         String sqlTypeDeclaration = this.adapter.getSqlBaseType();

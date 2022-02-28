@@ -1,6 +1,7 @@
 package sqlite;
 
 import com.craftmend.storm.Storm;
+import com.craftmend.storm.api.enums.Where;
 import com.craftmend.storm.connection.sqlite.SqliteDriver;
 import lombok.SneakyThrows;
 import models.SimpleUserModel;
@@ -43,7 +44,6 @@ public class SqliteTest {
         storm.save(randomBloke);
 
         // try to find all users
-
         Collection<SimpleUserModel> allUsers = storm.findAll(SimpleUserModel.class).join();
         Assert.assertEquals(3, allUsers.size());
 
@@ -52,6 +52,16 @@ public class SqliteTest {
             Assert.assertNotNull(allUser.getMinecraftUserId());
             Assert.assertEquals(UUID.class, allUser.getMinecraftUserId().getClass());
         }
+
+        // test queries
+        Collection<SimpleUserModel> justMindgamesnl =
+                storm.buildQuery(SimpleUserModel.class)
+                        .where("user_name", Where.EQUAL, "Mindgamesnl")
+                        .limit(1)
+                        .execute()
+                        .join();
+
+        Assert.assertEquals("Mindgamesnl", justMindgamesnl.stream().findFirst().get().getUserName());
 
     }
 

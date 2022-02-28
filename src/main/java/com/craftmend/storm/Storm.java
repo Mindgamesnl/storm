@@ -1,6 +1,7 @@
 package com.craftmend.storm;
 
 import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.builders.QueryBuilder;
 import com.craftmend.storm.connection.StormDriver;
 import com.craftmend.storm.parser.ModelParser;
 import com.craftmend.storm.parser.objects.ModelField;
@@ -104,6 +105,43 @@ public class Storm {
         registeredModels.put(model.getClass(), parsed);
     }
 
+    public <T extends StormModel> QueryBuilder<T> buildQuery(Class<T> model) {
+        ModelParser<T> parser = (ModelParser<T>) registeredModels.get(model);
+        if (parser == null) throw new IllegalArgumentException("The model " + model.getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
+        return new QueryBuilder<>(model, parser, this);
+    }
+
+    /**
+     * Execute query
+     *
+     * @param query Query to execute
+     * @return Processed result set
+     * @throws Exception
+     */
+    public <T extends StormModel> CompletableFuture<Collection<T>> executeQuery(QueryBuilder<T> query) throws Exception {
+        CompletableFuture<Collection<T>> future = new CompletableFuture<>();
+        HashSet<T> results = new HashSet<>();
+        ModelParser<T> parser = (ModelParser<T>) registeredModels.get(query.getModel());
+        if (parser == null) throw new IllegalArgumentException("The model " + query.getModel().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
+        QueryBuilder.PreparedQuery pq = query.build();
+        driver.executeQuery(pq.getQuery(), rows -> {
+            while (rows.next()) {
+                results.add(parser.fromResultSet(rows));
+            }
+            future.complete(results);
+        }, pq.getValues());
+
+        return future;
+    }
+
+    /**
+     * Get *ALL* models that are stored for a defined type.
+     * This might be really memory intensive for large data sets.
+     *
+     * @param model Model to check
+     * @return A promise with the results
+     * @throws Exception
+     */
     public <T extends StormModel> CompletableFuture<Collection<T>> findAll(Class<T> model) throws Exception {
         CompletableFuture<Collection<T>> future = new CompletableFuture<>();
         HashSet<T> results = new HashSet<>();

@@ -1,7 +1,6 @@
 package com.craftmend.storm.api.builders;
 
 import com.craftmend.storm.api.StormModel;
-import com.craftmend.storm.api.enums.KeyType;
 import com.craftmend.storm.parser.objects.ModelField;
 import lombok.AllArgsConstructor;
 

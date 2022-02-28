@@ -34,6 +34,13 @@ public class ModelParser<T extends StormModel> {
         tempFields.toArray(parsedFields);
     }
 
+    public ModelField fieldByColumnName(String columnName) {
+        for (ModelField parsedField : parsedFields) {
+            if (parsedField.getColumnName().equals(columnName)) return parsedField;
+        }
+        return null;
+    }
+
     public T fromResultSet(ResultSet resultSet) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
         T emptySelf = ownType.getConstructor().newInstance();
 
