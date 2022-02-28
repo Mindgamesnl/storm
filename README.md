@@ -1,8 +1,11 @@
 # storm
 Storm is a super simple to use, no bullshit MySql(ite) ORM with a query builder, support for type conversion, schema management and connection handling.
 
+# Performance
+Tests ran on my main workstation, targeting a Sqlite flatfile and memory database.
+![image](https://user-images.githubusercontent.com/10709682/156046029-537cf0dd-fd3b-4a6e-ab6b-17bf832046d4.png)
 
-# Example
+# Examples
 ```java
 // create a model
 @Data
