@@ -53,18 +53,4 @@ public class ModelField<T> {
         return (adapter.escapeAsString() ? "'" + toEscape + "'" : toEscape);
     }
 
-    public String buildSqlType(Syntax syntax) {
-        // build value
-        String sqlTypeDeclaration = this.adapter.getSqlBaseType();
-        sqlTypeDeclaration = sqlTypeDeclaration.replace("%max", this.max + "");
-        return this.columnName + " " + sqlTypeDeclaration +
-                (this.keyType == KeyType.PRIMARY ? " PRIMARY KEY" : "") +
-                (this.autoIncrement ? " " + syntax.getAutoIncrement() : "") +
-                (this.defaultValue != null ? " DEFAULT(" +
-                        (adapter.escapeAsString() ? "'" + this.defaultValue + "'" : this.defaultValue)
-                        + ")" : "") +
-                (this.notNull ? " NOT NULL" : "") +
-                (this.unique ? " UNIQUE" : "");
-    }
-
 }

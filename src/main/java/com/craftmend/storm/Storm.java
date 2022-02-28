@@ -14,9 +14,9 @@ import java.util.logging.Logger;
 
 public class Storm {
 
-    private Logger logger = Logger.getLogger(getClass().getSimpleName());
-    private Map<Class<? extends StormModel>, ModelParser<? extends StormModel>> registeredModels = new HashMap<>();
-    private StormDriver driver;
+    private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+    private final Map<Class<? extends StormModel>, ModelParser<? extends StormModel>> registeredModels = new HashMap<>();
+    private final StormDriver driver;
 
     /**
      * Initialize a new STORM instance with a given database driver
@@ -43,7 +43,7 @@ public class Storm {
      */
     public void migrate(StormModel model) throws SQLException {
         if (registeredModels.containsKey(model.getClass())) return;
-        ModelParser parsed = new ModelParser(model.getClass());
+        ModelParser<?> parsed = new ModelParser(model.getClass());
 
         logger.info("Registering class <-> table (" + parsed.getTableName() +" <->" + model.getClass().getSimpleName() + ".java)");
 
@@ -51,7 +51,7 @@ public class Storm {
             if (!tables.next()) {
                 // table doesn't exist.. creating
                 logger.info("Creating table " + parsed.getTableName() + "...");
-                driver.execute(model.statements().buildSqlTableCreateStatement(driver.getSyntax()));
+                driver.execute(model.statements().buildSqlTableCreateStatement(driver.getDialect()));
             }
         }
 
@@ -92,11 +92,11 @@ public class Storm {
             // find type
             for (ModelField parsedField : parsed.getParsedFields()) {
                 if (parsedField.getColumnName().equals(columnName)) {
-                    logger.warning("Column '" + columnName + "' is not present in the remote table schema. Altering table and adding type " + parsedField.buildSqlType(driver.getSyntax()));
+                    logger.warning("Column '" + columnName + "' is not present in the remote table schema. Altering table and adding type " + driver.getDialect().compileColumn(parsedField));
                     String statement = "ALTER TABLE %table ADD COLUMN %columnName %columnData;"
                             .replace("%table", parsed.getTableName())
                             .replace("%columnName", columnName)
-                            .replace("%columnData", parsedField.buildSqlType(driver.getSyntax()));
+                            .replace("%columnData", driver.getDialect().compileColumn(parsedField));
                     driver.executeUpdate(statement);
                 }
             }

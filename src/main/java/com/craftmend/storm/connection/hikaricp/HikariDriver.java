@@ -1,24 +1,22 @@
 package com.craftmend.storm.connection.hikaricp;
 
 import com.craftmend.storm.connection.StormDriver;
-import com.craftmend.storm.utils.Syntax;
+import com.craftmend.storm.dialect.Dialect;
+import com.craftmend.storm.dialect.mariadb.MariaDialect;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 
-import java.io.File;
 import java.sql.*;
 
 public class HikariDriver implements StormDriver {
 
     @Getter
-    private Syntax syntax = new Syntax();
+    private Dialect dialect = new MariaDialect();
     private HikariDataSource ds;
 
     public HikariDriver(HikariConfig hikariConfig) throws SQLException {
         ds = new HikariDataSource(hikariConfig);
-
-        syntax.setAutoIncrement("AUTO_INCREMENT");
     }
 
     @Override
@@ -69,5 +67,10 @@ public class HikariDriver implements StormDriver {
         if (isOpen()) {
             ds.close();
         }
+    }
+
+    @Override
+    public Dialect getDialect() {
+        return dialect;
     }
 }

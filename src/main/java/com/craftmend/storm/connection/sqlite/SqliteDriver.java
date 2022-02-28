@@ -1,17 +1,15 @@
 package com.craftmend.storm.connection.sqlite;
 
 import com.craftmend.storm.connection.StormDriver;
-import com.craftmend.storm.utils.Syntax;
-import lombok.Getter;
+import com.craftmend.storm.dialect.Dialect;
+import com.craftmend.storm.dialect.sqlite.SqliteDialect;
 
 import java.io.File;
 import java.sql.*;
-import java.util.function.Consumer;
 
 public class SqliteDriver implements StormDriver {
 
     private Connection conn;
-    @Getter private Syntax syntax = new Syntax();
 
     public SqliteDriver(File dataFile) throws SQLException {
         String url = "jdbc:sqlite:" + dataFile.getAbsolutePath();
@@ -68,5 +66,10 @@ public class SqliteDriver implements StormDriver {
                 // ignored
             }
         }
+    }
+
+    @Override
+    public Dialect getDialect() {
+        return new SqliteDialect();
     }
 }
