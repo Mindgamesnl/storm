@@ -16,3 +16,5 @@ out/*
 
 .vscode/*
 target/
+
+test-data/database.db
