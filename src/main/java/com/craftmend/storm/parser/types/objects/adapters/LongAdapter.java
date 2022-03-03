@@ -3,21 +3,21 @@ package com.craftmend.storm.parser.types.objects.adapters;
 
 import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 
-public class BooleanAdapter extends StormTypeAdapter<Boolean> {
+public class LongAdapter extends StormTypeAdapter<Long> {
     @Override
-    public Boolean fromSql(Object sqlValue) {
+    public Long fromSql(Object sqlValue) {
         if (sqlValue == null) return null;
-        return Boolean.valueOf(sqlValue.toString());
+        return Long.valueOf(sqlValue.toString());
     }
 
     @Override
-    public Object toSql(Boolean value) {
+    public Object toSql(Long value) {
         return value;
     }
 
     @Override
     public String getSqlBaseType() {
-        return "BOOLEAN";
+        return "BIGINT";
     }
 
     @Override

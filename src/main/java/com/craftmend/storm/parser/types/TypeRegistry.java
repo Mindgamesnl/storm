@@ -1,10 +1,7 @@
 package com.craftmend.storm.parser.types;
 
 import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
-import com.craftmend.storm.parser.types.objects.adapters.BooleanAdapter;
-import com.craftmend.storm.parser.types.objects.adapters.IntegerAdapter;
-import com.craftmend.storm.parser.types.objects.adapters.StringAdapter;
-import com.craftmend.storm.parser.types.objects.adapters.UUIDAdapter;
+import com.craftmend.storm.parser.types.objects.adapters.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +16,7 @@ public class TypeRegistry {
         adapters.put(Integer.class, new IntegerAdapter());
         adapters.put(Boolean.class, new BooleanAdapter());
         adapters.put(UUID.class, new UUIDAdapter());
+        adapters.put(Long.class, new LongAdapter());
     }
 
     public static void registerAdapter(Class type, StormTypeAdapter<?> adapter) {
