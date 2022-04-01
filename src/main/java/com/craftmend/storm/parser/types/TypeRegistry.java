@@ -18,6 +18,7 @@ public class TypeRegistry {
         adapters.put(UUID.class, new UUIDAdapter());
         adapters.put(Long.class, new LongAdapter());
         adapters.put(Double.class, new DoubleAdapter());
+        adapters.put(Float.class, new FloatAdapter());
     }
 
     public static void registerAdapter(Class type, StormTypeAdapter<?> adapter) {
