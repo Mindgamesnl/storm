@@ -141,8 +141,14 @@ public class Storm {
         CompletableFuture<Integer> future = new CompletableFuture<>();
         String query = "SELECT COUNT(*) FROM " + getParsedModel(model, true).getTableName() + ";";
         driver.executeQuery(query, rows -> {
+            boolean found = false;
             while (rows.next()) {
-                System.out.println(rows.getInt(1));
+                future.complete(rows.getInt(1));
+                found = true;
+            }
+
+            if (!found) {
+                future.complete(0);
             }
         });
 
