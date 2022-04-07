@@ -6,6 +6,7 @@ import com.craftmend.storm.connection.sqlite.SqliteFileDriver;
 import lombok.SneakyThrows;
 import models.SocialPost;
 import models.User;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -49,6 +50,9 @@ public class RelationTest {
         for (SocialPost post : user.getPosts()) {
             System.out.println(user.getUserName() + " posted: " + post.getContent());
         }
+
+        // count posts
+        Assert.assertEquals("1", storm.count(SocialPost.class).join().toString());
 
     }
 

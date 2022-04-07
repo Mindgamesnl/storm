@@ -136,6 +136,19 @@ public class Storm {
         return new QueryBuilder<>(model, parser, this);
     }
 
+    public <T extends StormModel> CompletableFuture<Integer> count(Class<T> model) throws Exception {
+        catchState();
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        String query = "SELECT COUNT(*) FROM " + getParsedModel(model, true).getTableName() + ";";
+        driver.executeQuery(query, rows -> {
+            while (rows.next()) {
+                System.out.println(rows.getInt(1));
+            }
+        });
+
+        return future;
+    }
+
     /**
      * Execute query
      *
