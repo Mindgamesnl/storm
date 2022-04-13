@@ -98,14 +98,14 @@ public class QueryBuilder<T extends StormModel> {
             }
         }
 
-        if (this.limit != null) {
-            sql.append(" LIMIT " + this.limit);
-        }
-
         if (this.order != null) {
             ParsedField f = parser.fieldByColumnName(order.column);
             if (f == null) throw new IllegalArgumentException("there's no column called " + order.column + " in this model");
             sql.append(" ORDER BY " + this.order.column + " " + this.order.order.toString());
+        }
+
+        if (this.limit != null) {
+            sql.append(" LIMIT " + this.limit);
         }
 
         Object[] preparedV = new Object[values.size()];
