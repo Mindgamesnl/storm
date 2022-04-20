@@ -290,7 +290,9 @@ public class Storm {
 
 
         if (model.getId() == null) {
-            return driver.executeUpdate(insertStatement, preparedValues);
+            int o = driver.executeUpdate(insertStatement, preparedValues);
+            model.setId(o);
+            return o;
         } else {
             return driver.executeUpdate(updateOrInsert, preparedValues);
         }

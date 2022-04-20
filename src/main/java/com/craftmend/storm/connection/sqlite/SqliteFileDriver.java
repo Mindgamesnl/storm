@@ -35,11 +35,17 @@ public class SqliteFileDriver implements StormDriver {
 
     @Override
     public int executeUpdate(String query, Object... arguments) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
+        try (PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             for (int i = 0; i < arguments.length; i++) {
                 ps.setObject(i + 1, arguments[i]);
             }
-            return ps.executeUpdate();
+            int o = ps.executeUpdate();
+            try (ResultSet generated = ps.getGeneratedKeys()) {
+                while (generated.next()) {
+                    return generated.getInt(1);
+                }
+            }
+            return o;
         }
     }
 
