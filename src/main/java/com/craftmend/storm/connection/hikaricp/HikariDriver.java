@@ -33,7 +33,6 @@ public class HikariDriver implements StormDriver {
 
     @Override
     public boolean execute(String query) throws SQLException {
-        System.out.println(query);
         try (Connection conn = ds.getConnection()) {
             try (Statement ps = conn.createStatement()) {
                 return ps.execute(query);
@@ -44,11 +43,17 @@ public class HikariDriver implements StormDriver {
     @Override
     public int executeUpdate(String query, Object... arguments) throws SQLException {
         try (Connection conn = ds.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(query)) {
+            try (PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < arguments.length; i++) {
                     ps.setObject(i + 1, arguments[i]);
                 }
-                return ps.executeUpdate();
+                int o = ps.executeUpdate();
+                try (ResultSet generated = ps.getGeneratedKeys()) {
+                    while (generated.next()) {
+                        return generated.getInt(1);
+                    }
+                }
+                return o;
             }
         }
     }
