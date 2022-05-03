@@ -115,6 +115,9 @@ public class Storm {
                                 .replace("%table", parsed.getTableName())
                                 .replace("%columnName", columnName)
                                 .replace("%columnData", sql);
+
+                        logger.info(statement);
+
                         driver.executeUpdate(statement);
                     }
                 }
