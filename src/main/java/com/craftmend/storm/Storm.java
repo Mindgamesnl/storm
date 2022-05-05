@@ -111,10 +111,10 @@ public class Storm {
                             sql += ", " + cd.getConfigurationSql();
                         }
 
-                        String statement = "ALTER TABLE %table ADD COLUMN %columnName %columnData;"
+                        String statement = "ALTER TABLE %table ADD COLUMN %columnData;"
                                 .replace("%table", parsed.getTableName())
-                                .replace("%columnName", columnName)
                                 .replace("%columnData", sql);
+
                         driver.executeUpdate(statement);
                     }
                 }
