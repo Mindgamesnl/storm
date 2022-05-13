@@ -3,6 +3,7 @@ package com.craftmend.storm;
 import com.craftmend.storm.api.StormModel;
 import com.craftmend.storm.api.builders.QueryBuilder;
 import com.craftmend.storm.connection.StormDriver;
+import com.craftmend.storm.logger.StormLogger;
 import com.craftmend.storm.parser.ModelParser;
 import com.craftmend.storm.parser.objects.ParsedField;
 import com.craftmend.storm.utils.ColumnDefinition;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
 
 public class Storm {
 
-    private final Logger logger = Logger.getLogger(getClass().getSimpleName());
+    private StormLogger logger;
     private final Map<Class<? extends StormModel>, ModelParser<? extends StormModel>> registeredModels = new HashMap<>();
     @Getter private final StormDriver driver;
     private boolean createdTables = false;
@@ -26,12 +27,20 @@ public class Storm {
 
     /**
      * Initialize a new STORM instance with a given database driver
+     * @param options Sotmr options
+     * @param driver Database driver
+     */
+    public Storm(StormOptions options, StormDriver driver) {
+        this.logger = options.getLogger();
+        this.driver = driver;
+    }
+
+    /**
+     * Initialize a new STORM instance with a given database driver
      * @param driver Database driver
      */
     public Storm(StormDriver driver) {
-        System.setProperty("java.util.logging.SimpleFormatter.format",
-                "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s %2$s %5$s%6$s%n");
-        this.driver = driver;
+        this(new StormOptions(), driver);
     }
 
     /**

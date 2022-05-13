@@ -4,6 +4,7 @@ import com.craftmend.storm.parser.objects.ParsedField;
 import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 import com.craftmend.storm.parser.types.objects.adapters.*;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class TypeRegistry {
         adapters.put(Long.class, new LongAdapter());
         adapters.put(Double.class, new DoubleAdapter());
         adapters.put(Float.class, new FloatAdapter());
+        adapters.put(Instant.class, new InstantAdapter());
     }
 
     public static void registerAdapter(Class type, StormTypeAdapter<?> adapter) {

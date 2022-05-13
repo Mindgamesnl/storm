@@ -18,6 +18,7 @@ Storm is a fast, easy to use, no-bullshit opinionated Java ORM inspired by Doctr
    - Long
    - String
    - UUID
+   - Instant
    - Any java object as Blob (HashMap, etc)
 
 # Performance
