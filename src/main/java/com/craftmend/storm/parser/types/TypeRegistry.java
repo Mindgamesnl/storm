@@ -1,5 +1,6 @@
 package com.craftmend.storm.parser.types;
 
+import com.craftmend.storm.parser.objects.ParsedField;
 import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
 import com.craftmend.storm.parser.types.objects.adapters.*;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 public class TypeRegistry {
 
     private static Map<Class, StormTypeAdapter<?>> adapters = new HashMap<>();
+    private static StormTypeAdapter<Object> gsonAdapter = new GsonTypeAdapter();
 
     static {
         adapters.put(String.class, new StringAdapter());
@@ -25,10 +27,12 @@ public class TypeRegistry {
         adapters.put(type, adapter);
     }
 
-    public static <T> StormTypeAdapter<?> getAdapterFor(Class<T> type) {
-        StormTypeAdapter<?> a = adapters.get(type);
-        if (a == null) throw new IllegalStateException("There's no registered adapter for " + type.getName());
-        return a;
+    public static <T> StormTypeAdapter<T> getAdapterFor(ParsedField<T> tParsedField) {
+        if (tParsedField.isUseBlob()) {
+            return new GsonTypeAdapter<T>();
+        }
+        StormTypeAdapter<?> a = adapters.get(tParsedField.getType());
+        if (a == null) throw new IllegalStateException("There's no registered adapter for " + tParsedField.getType().getName());
+        return (StormTypeAdapter<T>) a;
     }
-
 }

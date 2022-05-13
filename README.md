@@ -5,11 +5,20 @@ Storm is a fast, easy to use, no-bullshit opinionated Java ORM inspired by Doctr
 
 ## Features
  - Automatic schema creation and updates based on models
- - Built in support for java types (Integer, String, Uuid, Boolean) with an API to add your own
+ - Built in support for java types with an API to add your own
  - Support for OneToMany mappings with arraylist columns
  - Out-of-the-box adapters for Sqlite (flat file), Sqlite (Memory) and HiariCP-MariaDB
  - Dynamic SQL Dialects depending on the target platform
  - Incredibly easy to use API
+ - Native mappings and support for:
+   - Boolean
+   - Double
+   - Float
+   - Integer
+   - Long
+   - String
+   - UUID
+   - Any java object as Blob (HashMap, etc)
 
 # Performance
 Tests ran on my main workstation, targeting a Sqlite flatfile and memory database.

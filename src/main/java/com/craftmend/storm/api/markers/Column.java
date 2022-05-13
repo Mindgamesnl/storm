@@ -19,6 +19,11 @@ public @interface Column {
     String name() default "";
 
     /**
+     * @return True if the java type should be ignored and the value should be parsed as gson blob
+     */
+    boolean storeAsBlob() default false;
+
+    /**
      * @return The type of this column. Value is a normal mapped value, but ONE_TO_MANY attempts to polyfill this value
      *      with all matching elements
      */

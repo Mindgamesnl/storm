@@ -6,6 +6,7 @@ import com.craftmend.storm.connection.StormDriver;
 import com.craftmend.storm.parser.ModelParser;
 import com.craftmend.storm.parser.objects.ParsedField;
 import com.craftmend.storm.utils.ColumnDefinition;
+import com.google.gson.Gson;
 import lombok.Getter;
 
 import java.lang.reflect.InvocationTargetException;
@@ -21,6 +22,7 @@ public class Storm {
     private final Map<Class<? extends StormModel>, ModelParser<? extends StormModel>> registeredModels = new HashMap<>();
     @Getter private final StormDriver driver;
     private boolean createdTables = false;
+    @Getter private Gson gson = new Gson();
 
     /**
      * Initialize a new STORM instance with a given database driver

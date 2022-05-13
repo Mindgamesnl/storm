@@ -63,7 +63,7 @@ public class ModelParser<T extends StormModel> {
 
         // map normal fields
         for (ParsedField parsedField : parsedFields) {
-            Object value = parsedField.getAdapter().fromSql(resultSet.getObject(parsedField.getColumnName()));
+            Object value = parsedField.getAdapter().fromSql(parsedField, resultSet.getObject(parsedField.getColumnName()));
             parsedField.getReflectedField().setAccessible(true);
             parsedField.getReflectedField().set(emptySelf, value);
         }

@@ -10,7 +10,6 @@ import com.craftmend.storm.parser.ModelParser;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Reflection {
@@ -96,6 +95,13 @@ public class Reflection {
             getAllFields(fields, type.getSuperclass());
         }
         return fields;
+    }
+
+    public static boolean getAnnotatedUseBlob(Field field) {
+        if (field.isAnnotationPresent(Column.class)) {
+            return field.getAnnotation(Column.class).storeAsBlob();
+        }
+        return false;
     }
 
     public static boolean getAnnotatedUnique(Field field) {

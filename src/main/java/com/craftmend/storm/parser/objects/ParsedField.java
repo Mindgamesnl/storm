@@ -23,6 +23,7 @@ public class ParsedField<T> {
     @Getter private boolean unique;
     @Getter private boolean autoIncrement;
     @Getter private boolean notNull;
+    @Getter private boolean useBlob;
     @Getter private String defaultValue;
     @Getter private Field reflectedField;
     @Getter private Storm storm;
@@ -33,21 +34,22 @@ public class ParsedField<T> {
         this.type = type;
         this.javaFieldName = field.getName();
         this.columnName = Reflection.getAnnotatedFieldName(field);
-        this.adapter = TypeRegistry.getAdapterFor(this.type);
         this.max = Reflection.getAnnotatedFieldMax(field);
         this.keyType = Reflection.getAnnotatedKeyType(field);
         this.unique = Reflection.getAnnotatedUnique(field);
         this.autoIncrement = Reflection.getAnnotatedAutoIncrement(field);
         this.notNull = Reflection.getAnnotatedNotNull(field);
         this.defaultValue = Reflection.getAnnotatedDefaultValue(field);
+        this.useBlob = Reflection.getAnnotatedUseBlob(field);
         this.reflectedField = field;
+        this.adapter = TypeRegistry.getAdapterFor(this);
     }
 
     @SneakyThrows
     public Object valueOn(StormModel model) {
         this.reflectedField.setAccessible(true);
         return this.adapter.toSql(
-                (T) this.reflectedField.get(model)
+                this.storm, (T) this.reflectedField.get(model)
         );
     }
 
