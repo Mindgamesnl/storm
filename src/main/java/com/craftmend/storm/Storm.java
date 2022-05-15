@@ -3,16 +3,20 @@ package com.craftmend.storm;
 import com.craftmend.storm.api.StormModel;
 import com.craftmend.storm.api.builders.QueryBuilder;
 import com.craftmend.storm.connection.StormDriver;
+import com.craftmend.storm.gson.InstantTypeAdapter;
 import com.craftmend.storm.logger.StormLogger;
 import com.craftmend.storm.parser.ModelParser;
 import com.craftmend.storm.parser.objects.ParsedField;
 import com.craftmend.storm.utils.ColumnDefinition;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import lombok.Getter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -23,7 +27,7 @@ public class Storm {
     private final Map<Class<? extends StormModel>, ModelParser<? extends StormModel>> registeredModels = new HashMap<>();
     @Getter private final StormDriver driver;
     private boolean createdTables = false;
-    @Getter private Gson gson = new Gson();
+    @Getter private Gson gson;
 
     /**
      * Initialize a new STORM instance with a given database driver
@@ -33,6 +37,14 @@ public class Storm {
     public Storm(StormOptions options, StormDriver driver) {
         this.logger = options.getLogger();
         this.driver = driver;
+        GsonBuilder gb = new GsonBuilder();
+        for (Map.Entry<Class<?>, Object> entry : options.getTypeAdapters().entrySet()) {
+            Class<?> t = entry.getKey();
+            Object a = entry.getValue();
+            gb.registerTypeAdapter(t, a);
+        }
+        gb.registerTypeAdapter(Instant.class, new InstantTypeAdapter());
+        gson = gb.create();
     }
 
     /**
