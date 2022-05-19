@@ -4,9 +4,9 @@ import com.craftmend.storm.Storm;
 import com.craftmend.storm.api.StormModel;
 import com.craftmend.storm.api.enums.Order;
 import com.craftmend.storm.api.enums.Where;
+import com.craftmend.storm.api.enums.WhereType;
 import com.craftmend.storm.parser.ModelParser;
 import com.craftmend.storm.parser.objects.ParsedField;
-import com.craftmend.storm.parser.objects.RelationField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -22,6 +22,7 @@ public class QueryBuilder<T extends StormModel> {
     @Getter private ModelParser<T> parser;
     private Integer limit = null;
     private List<WhereClause> whereClauseList = new ArrayList<>();
+    private WhereType whereType;
     private OrderCause order = null;
     private Storm storm;
 
@@ -73,6 +74,17 @@ public class QueryBuilder<T extends StormModel> {
     }
 
     /**
+     * Set type of where(AND / OR)
+     *
+     * @param whereType Type to join where clauses with(default AND)
+     * @return self
+     */
+    public QueryBuilder<T> whereType(WhereType whereType) {
+        this.whereType = whereType;
+        return this;
+    }
+
+    /**
      * Build a new query
      * @return Query
      */
@@ -94,7 +106,7 @@ public class QueryBuilder<T extends StormModel> {
                     .append(" ?"); // polyfill with f.toSqlStringType(value)
             values.add(wc.value);
             if (!isLast) {
-                sql.append(" AND");
+                sql.append(" "+this.whereType.toString());
             }
         }
 
