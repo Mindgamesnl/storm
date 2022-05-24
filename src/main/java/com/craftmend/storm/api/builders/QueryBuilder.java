@@ -87,8 +87,13 @@ public class QueryBuilder<T extends StormModel> {
             ParsedField f = parser.fieldByColumnName(wc.column);
             if (f == null) throw new IllegalArgumentException("there's no column called " + wc.column + " in this model");
 
-            sql.append(" WHERE ")
-                    .append(wc.column)
+            if (i == 0) {
+                sql.append(" WHERE ");
+            } else {
+                sql.append(" ");
+            }
+
+            sql.append(wc.column)
                     .append(" ")
                     .append(wc.comparison.getSqlOp())
                     .append(" ?"); // polyfill with f.toSqlStringType(value)
