@@ -24,6 +24,7 @@ public class QueryBuilder<T extends StormModel> {
     private List<WhereClause> whereClauseList = new ArrayList<>();
     private OrderCause order = null;
     private Storm storm;
+    private boolean or = false;
 
     /**
      * Initiate a new empty query builder
@@ -56,6 +57,16 @@ public class QueryBuilder<T extends StormModel> {
      */
     public QueryBuilder<T> orderBy(String column, Order order) {
         this.order = new OrderCause(column, order);
+        return this;
+    }
+
+    /**
+     * Defines that the next parameter should be an or
+     *
+     * @return self
+     */
+    public QueryBuilder<T> or() {
+        this.or = true;
         return this;
     }
 
@@ -99,7 +110,12 @@ public class QueryBuilder<T extends StormModel> {
                     .append(" ?"); // polyfill with f.toSqlStringType(value)
             values.add(wc.value);
             if (!isLast) {
-                sql.append(" AND");
+                if (or) {
+                    or = false;
+                    sql.append(" OR");
+                } else {
+                    sql.append(" AND");
+                }
             }
         }
 
