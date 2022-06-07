@@ -9,7 +9,10 @@ public class BooleanAdapter extends StormTypeAdapter<Boolean> {
     @Override
     public Boolean fromSql(ParsedField parsedField, Object sqlValue) {
         if (sqlValue == null) return null;
-        return Boolean.valueOf(sqlValue.toString());
+        if (sqlValue.toString().equals("1")) {
+            return true;
+        }
+        return false;
     }
 
     @Override
