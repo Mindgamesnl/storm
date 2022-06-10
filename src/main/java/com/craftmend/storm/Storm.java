@@ -233,6 +233,7 @@ public class Storm {
      */
     public void delete(StormModel model) throws SQLException {
         catchState();
+        model.preDelete();
         ModelParser parser = registeredModels.get(model.getClass());
         if (parser == null) throw new IllegalArgumentException("The model " + model.getClass().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
         if (model.getId() == null) throw new IllegalArgumentException("This model doesn't have an ID");
@@ -264,6 +265,7 @@ public class Storm {
      */
     public int save(StormModel model) throws SQLException {
         catchState();
+        model.preSave();
         String updateOrInsert = "update %tableName set %psUpdateValues where id=%id";
         String insertStatement = "insert into %tableName(%insertVars) values(%insertValues);";
 

@@ -36,4 +36,7 @@ public abstract class StormModel {
         return statementBuilder;
     }
 
+    public void preSave() {}
+    public void preDelete() {}
+
 }
