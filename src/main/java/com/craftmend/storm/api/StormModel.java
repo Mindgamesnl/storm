@@ -38,5 +38,7 @@ public abstract class StormModel {
 
     public void preSave() {}
     public void preDelete() {}
+    public void postSave() {}
+    public void postDelete() {}
 
 }

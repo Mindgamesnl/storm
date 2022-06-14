@@ -238,6 +238,7 @@ public class Storm {
         if (parser == null) throw new IllegalArgumentException("The model " + model.getClass().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
         if (model.getId() == null) throw new IllegalArgumentException("This model doesn't have an ID");
         driver.executeUpdate("DELETE FROM " + parser.getTableName() + " WHERE id=" + model.getId());
+        model.postDelete();
     }
 
     public <T extends StormModel> ModelParser<T> getParsedModel(Class<T> m, boolean loadIfNotFound) {
@@ -317,8 +318,10 @@ public class Storm {
         if (model.getId() == null) {
             int o = driver.executeUpdate(insertStatement, preparedValues);
             model.setId(o);
+            model.postSave();
             return o;
         } else {
+            model.postSave();
             return driver.executeUpdate(updateOrInsert, preparedValues);
         }
     }
