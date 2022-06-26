@@ -22,7 +22,7 @@ public class BooleanAdapter extends StormTypeAdapter<Boolean> {
 
     @Override
     public String getSqlBaseType() {
-        return "BOOLEAN";
+        return "INTEGER";
     }
 
     @Override
