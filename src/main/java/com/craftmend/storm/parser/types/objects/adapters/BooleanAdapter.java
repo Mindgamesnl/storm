@@ -17,12 +17,12 @@ public class BooleanAdapter extends StormTypeAdapter<Boolean> {
 
     @Override
     public Object toSql(Storm storm, Boolean value) {
-        return value;
+        return value ? 1 : 0;
     }
 
     @Override
     public String getSqlBaseType() {
-        return "BOOLEAN";
+        return "INTEGER";
     }
 
     @Override
