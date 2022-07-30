@@ -60,7 +60,9 @@ public class HikariDriver implements StormDriver {
 
     @Override
     public DatabaseMetaData getMeta() throws SQLException {
-        return ds.getConnection().getMetaData();
+        try (Connection dsConnection = ds.getConnection()) {
+            return dsConnection.getMetaData();
+        }
     }
 
     @Override
