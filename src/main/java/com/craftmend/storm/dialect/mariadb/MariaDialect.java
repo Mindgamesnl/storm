@@ -16,9 +16,9 @@ public class MariaDialect implements Dialect {
         sqlTypeDeclaration = sqlTypeDeclaration.replace("%max", modelField.getMax() + "");
         String column = modelField.getColumnName() + " " + sqlTypeDeclaration +
 
-                (modelField.getKeyType() == KeyType.PRIMARY ? " PRIMARY KEY" : "") +
-
                 (modelField.isAutoIncrement() ? " AUTO_INCREMENT" : "") +
+
+                (modelField.getKeyType() == KeyType.PRIMARY ? " PRIMARY KEY" : "") +
 
                 (modelField.getDefaultValue() != null ? " DEFAULT(" +
                         (modelField.getAdapter().escapeAsString() ? "'" + modelField.getDefaultValue() + "'" : modelField.getDefaultValue())
