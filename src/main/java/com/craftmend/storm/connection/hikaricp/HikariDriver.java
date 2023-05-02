@@ -19,6 +19,10 @@ public class HikariDriver implements StormDriver {
         ds = new HikariDataSource(hikariConfig);
     }
 
+    public HikariDriver(HikariDataSource hikariDataSource) {
+        ds = hikariDataSource;
+    }
+
     @Override
     public void executeQuery(String query, Callback callback, Object... arguments) throws Exception {
         try (Connection conn = ds.getConnection()) {
