@@ -100,14 +100,14 @@ public class Storm {
             }
 
             // compare local tables to the ones in the database, we might need to add, remove or update some
-            Set<String> missingInDatabase = new HashSet<>();
+            List<String> missingInDatabase = new ArrayList<>();
             for (ParsedField parsedField : parsed.getParsedFields()) {
                 missingInDatabase.add(parsedField.getColumnName());
             }
             missingInDatabase.removeAll(columnsInDatabase.keySet());
 
             // compare local
-            Set<String> missingInLocal = new HashSet<>();
+            List<String> missingInLocal = new ArrayList<>();
             missingInLocal.addAll(columnsInDatabase.keySet());
             for (ParsedField parsedField : parsed.getParsedFields()) {
                 missingInLocal.remove(parsedField.getColumnName());
@@ -188,7 +188,7 @@ public class Storm {
     public <T extends StormModel> CompletableFuture<Collection<T>> executeQuery(QueryBuilder<T> query) throws Exception {
         catchState();
         CompletableFuture<Collection<T>> future = new CompletableFuture<>();
-        HashSet<T> results = new HashSet<>();
+        List<T> results = new ArrayList<>();
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(query.getModel());
         if (parser == null) throw new IllegalArgumentException("The model " + query.getModel().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
         QueryBuilder.PreparedQuery pq = query.build();
@@ -213,7 +213,7 @@ public class Storm {
     public <T extends StormModel> CompletableFuture<Collection<T>> findAll(Class<T> model) throws Exception {
         catchState();
         CompletableFuture<Collection<T>> future = new CompletableFuture<>();
-        HashSet<T> results = new HashSet<>();
+        List<T> results = new ArrayList<>();
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(model);
         if (parser == null) throw new IllegalArgumentException("The model " + model.getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
 
