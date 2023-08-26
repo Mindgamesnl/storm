@@ -48,9 +48,12 @@ public class ParsedField<T> {
     @SneakyThrows
     public Object valueOn(BaseStormModel model) {
         this.reflectedField.setAccessible(true);
+        return toSql(this.reflectedField.get(model));
+    }
+
+    public Object toSql(Object value) {
         return this.adapter.toSql(
-                this.storm, (T) this.reflectedField.get(model)
-        );
+                this.storm, (T) value);
     }
 
     public Object toSqlStringType(Object toEscape) {
