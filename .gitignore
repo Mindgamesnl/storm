@@ -18,3 +18,5 @@ out/*
 target/
 
 test-data/
+
+memory
