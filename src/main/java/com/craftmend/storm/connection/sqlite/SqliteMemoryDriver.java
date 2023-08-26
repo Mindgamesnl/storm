@@ -4,7 +4,6 @@ import com.craftmend.storm.connection.StormDriver;
 import com.craftmend.storm.dialect.Dialect;
 import com.craftmend.storm.dialect.sqlite.SqliteDialect;
 
-import java.io.File;
 import java.sql.*;
 
 public class SqliteMemoryDriver implements StormDriver {
@@ -34,18 +33,18 @@ public class SqliteMemoryDriver implements StormDriver {
     }
 
     @Override
-    public int executeUpdate(String query, Object... arguments) throws SQLException {
+    public Object executeUpdate(String query, Object... arguments) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             for (int i = 0; i < arguments.length; i++) {
                 ps.setObject(i + 1, arguments[i]);
             }
-            int o = ps.executeUpdate();
+            ps.executeUpdate();
             try (ResultSet generated = ps.getGeneratedKeys()) {
                 while (generated.next()) {
                     return generated.getInt(1);
                 }
             }
-            return o;
+            return null;
         }
     }
 

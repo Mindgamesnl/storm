@@ -9,12 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Core of any storm model, has required api parsing flags and configures a default ID primary key
+ * Extends BaseStormModel to have a primary key
+ * Should be used in most situations
  */
-public abstract class StormModel {
-
-    private ModelParser<? extends StormModel> parsedSelf;
-    private StatementBuilder statementBuilder;
+public abstract class StormModel extends BaseStormModel {
 
     @Getter
     @Setter
@@ -22,23 +20,6 @@ public abstract class StormModel {
             autoIncrement = true,
             keyType = KeyType.PRIMARY
     )
-    private Integer id;
-
-    public ModelParser<? extends StormModel> parsed(Storm orm) {
-        if (parsedSelf != null) return parsedSelf;
-        parsedSelf = new ModelParser(getClass(), orm, this);
-        return parsedSelf;
-    }
-
-    public StatementBuilder statements() {
-        if (statementBuilder != null) return statementBuilder;
-        statementBuilder = new StatementBuilder(this);
-        return statementBuilder;
-    }
-
-    public void preSave() {}
-    public void preDelete() {}
-    public void postSave() {}
-    public void postDelete() {}
+    public Integer id;
 
 }

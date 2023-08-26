@@ -1,6 +1,6 @@
 package com.craftmend.storm;
 
-import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.BaseStormModel;
 import com.craftmend.storm.api.builders.QueryBuilder;
 import com.craftmend.storm.connection.StormDriver;
 import com.craftmend.storm.gson.InstantTypeAdapter;
@@ -10,7 +10,6 @@ import com.craftmend.storm.parser.objects.ParsedField;
 import com.craftmend.storm.utils.ColumnDefinition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import lombok.Getter;
 
 import java.lang.reflect.InvocationTargetException;
@@ -19,12 +18,11 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
 
 public class Storm {
 
     private StormLogger logger;
-    private final Map<Class<? extends StormModel>, ModelParser<? extends StormModel>> registeredModels = new HashMap<>();
+    private final Map<Class<? extends BaseStormModel>, ModelParser<? extends BaseStormModel>> registeredModels = new HashMap<>();
     @Getter private final StormDriver driver;
     private boolean createdTables = false;
     @Getter private Gson gson;
@@ -68,7 +66,7 @@ public class Storm {
      * @param model Model to register
      * @throws SQLException Something went boom
      */
-    public void registerModel(StormModel model) throws SQLException {
+    public void registerModel(BaseStormModel model) throws SQLException {
         if (registeredModels.containsKey(model.getClass())) return;
         ModelParser<?> parsed = new ModelParser(model.getClass(), this, model);
         logger.info("Registering class <-> table (" + parsed.getTableName() +"<->" + model.getClass().getSimpleName() + ".java)");
@@ -76,9 +74,9 @@ public class Storm {
     }
 
     public void runMigrations() throws SQLException {
-        for (Map.Entry<Class<? extends StormModel>, ModelParser<? extends StormModel>> entry : registeredModels.entrySet()) {
-            ModelParser<? extends StormModel> parsed = entry.getValue();
-            StormModel model = parsed.getEmptyInstance();
+        for (Map.Entry<Class<? extends BaseStormModel>, ModelParser<? extends BaseStormModel>> entry : registeredModels.entrySet()) {
+            ModelParser<? extends BaseStormModel> parsed = entry.getValue();
+            BaseStormModel model = parsed.getEmptyInstance();
             if (parsed.isMigrated()) continue;
 
             try (ResultSet tables = driver.getMeta().getTables(null, null, parsed.getTableName(), null)) {
@@ -152,14 +150,14 @@ public class Storm {
      * @param model Start a new query
      * @return Query for you to play with
      */
-    public <T extends StormModel> QueryBuilder<T> buildQuery(Class<T> model) {
+    public <T extends BaseStormModel> QueryBuilder<T> buildQuery(Class<T> model) {
         catchState();
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(model);
         if (parser == null) throw new IllegalArgumentException("The model " + model.getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
         return new QueryBuilder<>(model, parser, this);
     }
 
-    public <T extends StormModel> CompletableFuture<Integer> count(Class<T> model) throws Exception {
+    public <T extends BaseStormModel> CompletableFuture<Integer> count(Class<T> model) throws Exception {
         catchState();
         CompletableFuture<Integer> future = new CompletableFuture<>();
         String query = "SELECT COUNT(*) FROM " + getParsedModel(model, true).getTableName() + ";";
@@ -185,7 +183,7 @@ public class Storm {
      * @return Processed result set
      * @throws Exception
      */
-    public <T extends StormModel> CompletableFuture<Collection<T>> executeQuery(QueryBuilder<T> query) throws Exception {
+    public <T extends BaseStormModel> CompletableFuture<Collection<T>> executeQuery(QueryBuilder<T> query) throws Exception {
         catchState();
         CompletableFuture<Collection<T>> future = new CompletableFuture<>();
         List<T> results = new ArrayList<>();
@@ -210,7 +208,7 @@ public class Storm {
      * @return A promise with the results
      * @throws Exception
      */
-    public <T extends StormModel> CompletableFuture<Collection<T>> findAll(Class<T> model) throws Exception {
+    public <T extends BaseStormModel> CompletableFuture<Collection<T>> findAll(Class<T> model) throws Exception {
         catchState();
         CompletableFuture<Collection<T>> future = new CompletableFuture<>();
         List<T> results = new ArrayList<>();
@@ -231,22 +229,22 @@ public class Storm {
      * @param model Delete a row
      * @throws SQLException
      */
-    public void delete(StormModel model) throws SQLException {
+    public void delete(BaseStormModel model) throws SQLException {
         catchState();
         model.preDelete();
         ModelParser parser = registeredModels.get(model.getClass());
         if (parser == null) throw new IllegalArgumentException("The model " + model.getClass().getName() + " isn't loaded. Please call storm.migrate() with an empty instance");
-        if (model.getId() == null) throw new IllegalArgumentException("This model doesn't have an ID");
-        driver.executeUpdate("DELETE FROM " + parser.getTableName() + " WHERE id=" + model.getId());
+        if (model.getPk() == null) throw new IllegalArgumentException("This model doesn't have a primary key");
+        driver.executeUpdate("DELETE FROM " + parser.getTableName() + " WHERE "+  model.getPkFieldName() + "=" + model.getPk());
         model.postDelete();
     }
 
-    public <T extends StormModel> ModelParser<T> getParsedModel(Class<T> m, boolean loadIfNotFound) {
+    public <T extends BaseStormModel> ModelParser<T> getParsedModel(Class<T> m, boolean loadIfNotFound) {
         ModelParser<T> parser = (ModelParser<T>) registeredModels.get(m);
         if (parser == null) {
             if (loadIfNotFound) {
                 try {
-                    StormModel sm = m.getConstructor().newInstance();
+                    BaseStormModel sm = m.getConstructor().newInstance();
                     registerModel(sm);
                     return getParsedModel(m, false);
                 } catch (SQLException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
@@ -262,12 +260,11 @@ public class Storm {
      * Save the model in the database.
      * This either inserts it as a new row, or updates an existing row if there already is a row with this ID
      * @param model Target to save
-     * @return int Returns the amount of effected rows
      */
-    public int save(StormModel model) throws SQLException {
+    public void save(BaseStormModel model) throws SQLException {
         catchState();
         model.preSave();
-        String updateOrInsert = "update %tableName set %psUpdateValues where id=%id";
+        String updateOrInsert = "update %tableName set %psUpdateValues where " + model.getPkFieldName() + "=%pk";
         String insertStatement = "insert into %tableName(%insertVars) values(%insertValues);";
 
         // ps update value things
@@ -309,20 +306,19 @@ public class Storm {
                 .replace("%insertValues", insertPointers)
                 .replaceAll("%tableName", model.parsed(this).getTableName());
 
-        updateOrInsert = updateOrInsert
-                .replace("%psUpdateValues", updateValues.toString())
-                .replaceAll("%tableName", model.parsed(this).getTableName())
-                .replace("%id", model.getId() + "");
 
-
-        if (model.getId() == null) {
-            int o = driver.executeUpdate(insertStatement, preparedValues);
-            model.setId(o);
+        if (model.getPk() == null) {
+            Object o = driver.executeUpdate(insertStatement, preparedValues);
+            model.setPk(o);
             model.postSave();
-            return o;
         } else {
+            updateOrInsert = updateOrInsert
+                    .replace("%psUpdateValues", updateValues.toString())
+                    .replaceAll("%tableName", model.parsed(this).getTableName())
+                    .replace("%pk", model.getPk().toString());
+
             model.postSave();
-            return driver.executeUpdate(updateOrInsert, preparedValues);
+            driver.executeUpdate(updateOrInsert, preparedValues);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.craftmend.storm.api.markers;
 
-import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.BaseStormModel;
 import com.craftmend.storm.api.enums.ColumnType;
 import com.craftmend.storm.api.enums.KeyType;
 
@@ -42,7 +42,7 @@ public @interface Column {
     /**
      * @return Where a key points to
      */
-    Class<? extends StormModel>[] references() default {};
+    Class<? extends BaseStormModel>[] references() default {};
 
     /**
      * @return Field in the @link{referenced} class to match while loading

@@ -1,7 +1,7 @@
 package com.craftmend.storm.parser;
 
 import com.craftmend.storm.Storm;
-import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.BaseStormModel;
 import com.craftmend.storm.api.enums.ColumnType;
 import com.craftmend.storm.api.enums.Where;
 import com.craftmend.storm.api.markers.Column;
@@ -13,14 +13,13 @@ import lombok.Setter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ModelParser<T extends StormModel> {
+public class ModelParser<T extends BaseStormModel> {
 
     @Getter @Setter private boolean migrated = false;
     @Getter private final String tableName;
@@ -73,7 +72,7 @@ public class ModelParser<T extends StormModel> {
             try {
                 Collection<?> childValues = (Collection<?>) storm
                         .buildQuery(relationField.getTargetParser().ownType)
-                        .where(relationField.getMatchToField(), Where.EQUAL, emptySelf.getId())
+                        .where(relationField.getMatchToField(), Where.EQUAL, emptySelf.getPk())
                         .execute()
                         .join();
                 relationField.getReflectedField().setAccessible(true);

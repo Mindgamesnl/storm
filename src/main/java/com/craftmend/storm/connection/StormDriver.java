@@ -10,7 +10,7 @@ public interface StormDriver {
 
     void executeQuery(String query, Callback callback, Object... arguments) throws Exception;
     boolean execute(String query) throws SQLException;
-    int executeUpdate(String query, Object... arguments) throws SQLException;
+    Object executeUpdate(String query, Object... arguments) throws SQLException;
     DatabaseMetaData getMeta() throws SQLException;
     boolean isOpen();
     void close();

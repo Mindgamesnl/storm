@@ -1,7 +1,7 @@
 package com.craftmend.storm.parser.objects;
 
 import com.craftmend.storm.Storm;
-import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.BaseStormModel;
 import com.craftmend.storm.api.enums.KeyType;
 import com.craftmend.storm.parser.types.TypeRegistry;
 import com.craftmend.storm.parser.types.objects.StormTypeAdapter;
@@ -17,7 +17,7 @@ public class ParsedField<T> {
     @Getter private String javaFieldName;
     @Getter private String columnName;
     @Getter private StormTypeAdapter<T> adapter;
-    @Getter private Class<? extends StormModel> model;
+    @Getter private Class<? extends BaseStormModel> model;
     @Getter private int max;
     @Getter private KeyType keyType;
     @Getter private boolean unique;
@@ -28,7 +28,7 @@ public class ParsedField<T> {
     @Getter private Field reflectedField;
     @Getter private Storm storm;
 
-    public ParsedField(Storm storm, Class<? extends StormModel> modelClass, Class<T> type, Field field) {
+    public ParsedField(Storm storm, Class<? extends BaseStormModel> modelClass, Class<T> type, Field field) {
         this.storm = storm;
         this.model = modelClass;
         this.type = type;
@@ -46,7 +46,7 @@ public class ParsedField<T> {
     }
 
     @SneakyThrows
-    public Object valueOn(StormModel model) {
+    public Object valueOn(BaseStormModel model) {
         this.reflectedField.setAccessible(true);
         return this.adapter.toSql(
                 this.storm, (T) this.reflectedField.get(model)

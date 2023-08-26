@@ -1,7 +1,7 @@
 package com.craftmend.storm.api.builders;
 
 import com.craftmend.storm.Storm;
-import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.BaseStormModel;
 import com.craftmend.storm.dialect.Dialect;
 import com.craftmend.storm.parser.objects.ParsedField;
 import com.craftmend.storm.utils.ColumnDefinition;
@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class StatementBuilder {
 
-    private StormModel model;
+    private BaseStormModel model;
 
     public String buildSqlTableCreateStatement(Dialect dialect, Storm orm) {
         StringBuilder sb = new StringBuilder();

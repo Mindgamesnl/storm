@@ -45,7 +45,7 @@ public class HikariDriver implements StormDriver {
     }
 
     @Override
-    public int executeUpdate(String query, Object... arguments) throws SQLException {
+    public Object executeUpdate(String query, Object... arguments) throws SQLException {
         try (Connection conn = ds.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < arguments.length; i++) {

@@ -1,7 +1,7 @@
 package com.craftmend.storm.utils;
 
 import com.craftmend.storm.Storm;
-import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.BaseStormModel;
 import com.craftmend.storm.api.enums.ColumnType;
 import com.craftmend.storm.api.enums.KeyType;
 import com.craftmend.storm.api.markers.Column;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Reflection {
 
-    public static String TableNameFromClass(Class<? extends StormModel> modelClazz) {
+    public static String TableNameFromClass(Class<? extends BaseStormModel> modelClazz) {
         if (!modelClazz.isAnnotationPresent(Table.class)) {
             // auto complete model name
             return CaseConverter.camelToSnake(modelClazz.getSimpleName());
@@ -32,9 +32,9 @@ public class Reflection {
         return CaseConverter.camelToSnake(field.getName());
     }
 
-    public static ModelParser<? extends StormModel> getAnnotatedReference(Storm storm, Field field) {
+    public static ModelParser<? extends BaseStormModel> getAnnotatedReference(Storm storm, Field field) {
         if (field.isAnnotationPresent(Column.class)) {
-            Class<? extends StormModel>[] references = field.getAnnotation(Column.class).references();
+            Class<? extends BaseStormModel>[] references = field.getAnnotation(Column.class).references();
             if (references.length == 1) {
                 return storm.getParsedModel(references[0], false);
             }

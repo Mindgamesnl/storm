@@ -1,12 +1,11 @@
 package com.craftmend.storm.api.builders;
 
 import com.craftmend.storm.Storm;
-import com.craftmend.storm.api.StormModel;
+import com.craftmend.storm.api.BaseStormModel;
 import com.craftmend.storm.api.enums.Order;
 import com.craftmend.storm.api.enums.Where;
 import com.craftmend.storm.parser.ModelParser;
 import com.craftmend.storm.parser.objects.ParsedField;
-import com.craftmend.storm.parser.objects.RelationField;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,7 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class QueryBuilder<T extends StormModel> {
+public class QueryBuilder<T extends BaseStormModel> {
 
     @Getter private Class<T> model;
     @Getter private ModelParser<T> parser;
