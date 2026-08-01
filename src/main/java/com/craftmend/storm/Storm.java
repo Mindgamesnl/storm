@@ -85,6 +85,7 @@ public class Storm {
                 if (!tables.next()) {
                     // table doesn't exist.. creating
                     logger.info("Creating table " + parsed.getTableName() + "...");
+                    logger.warning("Statement: " + model.statements().buildSqlTableCreateStatement(driver.getDialect(), this));
                     driver.execute(model.statements().buildSqlTableCreateStatement(driver.getDialect(), this));
                 }
             }
