@@ -23,6 +23,16 @@ public class HikariDriver implements StormDriver {
         ds = hikariDataSource;
     }
 
+    public HikariDriver(HikariConfig hikariConfig, Dialect dialect) throws SQLException {
+        ds = new HikariDataSource(hikariConfig);
+        this.dialect = dialect;
+    }
+
+    public HikariDriver(HikariDataSource hikariDataSource, Dialect dialect) {
+        ds = hikariDataSource;
+        this.dialect = dialect;
+    }
+
     @Override
     public void executeQuery(String query, Callback callback, Object... arguments) throws Exception {
         try (Connection conn = ds.getConnection()) {
